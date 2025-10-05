@@ -24,8 +24,13 @@ const LoginPage = () => {
       // Zustand 스토어에 인증 정보 저장
       setAuth(response.accessToken, response.refreshToken, response.user);
       
-      // 홈으로 이동
-      navigate('/');
+      // 관리자인지 확인하고 적절한 페이지로 이동
+      const isAdmin = ['admin', 'administrator', 'root'].includes(username.toLowerCase());
+      if (isAdmin) {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
     } catch (err: any) {
       console.error('Login error:', err);
       setError(err.response?.data?.error || '로그인에 실패했습니다.');

@@ -5,6 +5,7 @@ import LoginPage from '@/pages/LoginPage';
 import RegisterPage from '@/pages/RegisterPage';
 import SearchPage from '@/pages/SearchPage';
 import GameStoryPage from '@/pages/GameStoryPage';
+import AdminPage from '@/pages/AdminPage';
 
 function App() {
   return (
@@ -12,6 +13,9 @@ function App() {
       <Routes>
         {/* 게임 페이지는 레이아웃 없이 전체 화면 */}
         <Route path="/game" element={<GameStoryPage />} />
+        
+        {/* 관리자 페이지는 별도 레이아웃 */}
+        <Route path="/admin/*" element={<AdminPage />} />
         
         {/* 나머지 페이지는 MobileLayout 적용 */}
         <Route path="/*" element={
