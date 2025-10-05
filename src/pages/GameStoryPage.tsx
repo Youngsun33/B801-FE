@@ -69,8 +69,29 @@ const GameStoryPage = () => {
     setError('');
 
     try {
-      // 인트로 스토리 노드(100번)부터 시작
-      const node = await getStoryNode(100);
+      // 게임 시작 (1일차부터 시작) - 직접 API 호출
+      const response = await fetch('http://localhost:5000/api/story/day/1/enter', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const gameStart = await response.json();
+      console.log('게임 시작 응답:', gameStart);
+      
+      // startNode가 있는지 확인
+      if (!gameStart.startNode || !gameStart.startNode.nodeId) {
+        throw new Error('시작 노드 정보가 없습니다.');
+      }
+      
+      // 시작 노드 로드
+      const node = await getStoryNode(gameStart.startNode.nodeId);
       console.log('스토리 노드:', node);
       setCurrentNode(node);
       

@@ -66,26 +66,119 @@ const AdminPage: React.FC = () => {
 
 // 대시보드 컴포넌트
 const AdminDashboard: React.FC = () => {
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    activeUsers: 0,
+    storyNodes: 0,
+    completedPlays: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // 실시간 데이터 로드
+  React.useEffect(() => {
+    loadAdminStats();
+    // 30초마다 자동 새로고침
+    const interval = setInterval(loadAdminStats, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const loadAdminStats = async () => {
+    try {
+      setError(null);
+      const response = await fetch('http://localhost:5000/api/admin/stats', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setStats(data.stats);
+      } else {
+        setError('통계 데이터를 불러오는데 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('통계 로드 실패:', error);
+      setError('통계 데이터를 불러오는 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatNumber = (num: number) => {
+    return num.toLocaleString();
+  };
+
+  if (loading) {
+    return (
+      <div className="dashboard">
+        <h2>대시보드</h2>
+        <div className="dashboard-stats">
+          <div className="stat-card loading">
+            <h3>데이터 로딩 중...</h3>
+            <p className="stat-number">⏳</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="dashboard">
+        <h2>대시보드</h2>
+        <div className="dashboard-stats">
+          <div className="stat-card error">
+            <h3>오류 발생</h3>
+            <p className="stat-number">❌</p>
+            <p style={{ color: 'red', fontSize: '14px' }}>{error}</p>
+            <button onClick={loadAdminStats} style={{ marginTop: '10px', padding: '5px 10px' }}>
+              다시 시도
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="dashboard">
-      <h2>대시보드</h2>
+      <div className="dashboard-header">
+        <h2>대시보드</h2>
+        <button 
+          onClick={loadAdminStats} 
+          className="refresh-btn"
+          title="새로고침"
+        >
+          🔄 새로고침
+        </button>
+      </div>
       <div className="dashboard-stats">
         <div className="stat-card">
           <h3>총 사용자</h3>
-          <p className="stat-number">1,234</p>
+          <p className="stat-number">{formatNumber(stats.totalUsers)}</p>
+          <p className="stat-label">등록된 사용자 수</p>
         </div>
         <div className="stat-card">
           <h3>활성 사용자</h3>
-          <p className="stat-number">456</p>
+          <p className="stat-number">{formatNumber(stats.activeUsers)}</p>
+          <p className="stat-label">현재 활성 사용자</p>
         </div>
         <div className="stat-card">
           <h3>스토리 노드</h3>
-          <p className="stat-number">148</p>
+          <p className="stat-number">{formatNumber(stats.storyNodes)}</p>
+          <p className="stat-label">총 스토리 노드 수</p>
         </div>
         <div className="stat-card">
           <h3>완료된 플레이</h3>
-          <p className="stat-number">89</p>
+          <p className="stat-number">{formatNumber(stats.completedPlays)}</p>
+          <p className="stat-label">완주한 플레이 수</p>
         </div>
+      </div>
+      <div className="dashboard-info">
+        <p className="last-updated">마지막 업데이트: {new Date().toLocaleTimeString()}</p>
+        <p className="auto-refresh">30초마다 자동 새로고침됩니다</p>
       </div>
     </div>
   );
@@ -208,6 +301,7 @@ const StoryEditor: React.FC = () => {
 const VisualStoryEditorWrapper: React.FC = () => {
   const [nodes, setNodes] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
 
   // 스토리 노드 데이터 로드
   React.useEffect(() => {
@@ -249,20 +343,22 @@ const VisualStoryEditorWrapper: React.FC = () => {
           
           let choices = [];
           try {
-            choices = JSON.parse(node.choices || '[]');
-            // choices는 이미 객체 배열 형태로 파싱되어 있음 (targetNodeId 포함)
+            // choices는 JSON 문자열로 저장되어 있으므로 파싱
+            const parsedChoices = JSON.parse(node.choices || '[]');
+            // 원본 객체 그대로 사용 (targetNodeId 포함)
+            choices = parsedChoices;
           } catch (e) {
-            console.warn('Choices 파싱 오류:', e);
+            console.warn(`노드 ${node.title}의 Choices 파싱 오류:`, e);
             choices = [];
           }
 
-          // Twine 위치 사용 (스케일 조정 없이 그대로)
+          // Twine 위치 사용 (더 넓은 간격으로 조정)
           const x = node.position_x !== null && node.position_x !== undefined 
             ? node.position_x
-            : 100 + (index % 4) * 220;
+            : 150 + (index % 3) * 350;  // 가로 간격을 220에서 350으로 증가, 4열에서 3열로 변경
           const y = node.position_y !== null && node.position_y !== undefined 
             ? node.position_y
-            : 100 + Math.floor(index / 4) * 180;
+            : 150 + Math.floor(index / 3) * 250;  // 세로 간격을 180에서 250으로 증가
           
           // 디버깅: 계산된 위치 출력
           if (index < 3) {
@@ -295,7 +391,9 @@ const VisualStoryEditorWrapper: React.FC = () => {
   };
 
   const handleNodeUpdate = async (nodeId: number, nodeData: any) => {
+    setSaving(true);
     try {
+      console.log(`💾 노드 ${nodeId} 저장 중...`, nodeData);
       const response = await fetch(`http://localhost:5000/api/admin/story-nodes/${nodeId}`, {
         method: 'PUT',
         headers: {
@@ -306,14 +404,18 @@ const VisualStoryEditorWrapper: React.FC = () => {
       });
 
       if (response.ok) {
-        loadStoryNodes();
-        alert('노드가 성공적으로 저장되었습니다!');
+        console.log(`✅ 노드 ${nodeId} 저장 완료!`);
+        // 자동 저장이므로 alert 제거
       } else {
-        alert('저장 실패: ' + await response.text());
+        const errorText = await response.text();
+        console.error('❌ 저장 실패:', errorText);
+        alert('저장 실패: ' + errorText);
       }
     } catch (error) {
       console.error('노드 저장 실패:', error);
       alert('저장 중 오류가 발생했습니다.');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -344,6 +446,8 @@ const VisualStoryEditorWrapper: React.FC = () => {
 
   const handleNodesChange = (newNodes: any[]) => {
     setNodes(newNodes);
+    // 노드 목록 새로고침
+    loadStoryNodes();
   };
 
   if (loading) {
@@ -366,12 +470,15 @@ const VisualStoryEditorWrapper: React.FC = () => {
   }
 
   return (
-    <VisualStoryEditor
-      nodes={nodes}
-      onNodeUpdate={handleNodeUpdate}
-      onNodeDelete={handleNodeDelete}
-      onNodesChange={handleNodesChange}
-    />
+    <div className="story-editor-container">
+      <VisualStoryEditor
+        nodes={nodes}
+        onNodeUpdate={handleNodeUpdate}
+        onNodeDelete={handleNodeDelete}
+        onNodesChange={handleNodesChange}
+        saving={saving}
+      />
+    </div>
   );
 };
 
@@ -381,20 +488,56 @@ const NodeEditor: React.FC<{
   onSave: (data: any) => void;
   onDelete: () => void;
 }> = ({ node, onSave, onDelete }) => {
+  // 선택지를 개별 배열로 관리 (targetNodeId 포함)
+  const [choices, setChoices] = React.useState<any[]>(() => {
+    if (node?.choices) {
+      if (Array.isArray(node.choices)) {
+        return node.choices;
+      } else if (typeof node.choices === 'string') {
+        try {
+          const parsed = JSON.parse(node.choices);
+          return parsed;
+        } catch {
+          // 파싱 실패 시 빈 문자열들을 객체로 변환
+          return node.choices.split('|').filter((c: string) => c.trim()).map((choice: string) => ({
+            label: choice,
+            targetNodeId: null
+          }));
+        }
+      }
+    }
+    return [];
+  });
+
   const [formData, setFormData] = React.useState({
     title: node?.title || '',
     text: node?.content || '',
-    choices: node?.choices ? node.choices.join('|') : '',
     rewards: node?.rewards ? Object.entries(node.rewards).map(([k, v]) => `${k}:${v}`).join(', ') : '',
     route_name: node?.route_name || '',
   });
 
   const handleSave = () => {
-    onSave(formData);
+    // 선택지를 JSON 문자열로 변환
+    const choicesString = JSON.stringify(choices.filter(choice => choice.label && choice.label.trim()));
+    onSave({ ...formData, choices: choicesString });
   };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleChoiceChange = (index: number, field: string, value: string) => {
+    const newChoices = [...choices];
+    newChoices[index] = { ...newChoices[index], [field]: value };
+    setChoices(newChoices);
+  };
+
+  const addChoice = () => {
+    setChoices([...choices, { label: '', targetNodeId: null }]);
+  };
+
+  const removeChoice = (index: number) => {
+    setChoices(choices.filter((_, i) => i !== index));
   };
 
   return (
@@ -417,15 +560,42 @@ const NodeEditor: React.FC<{
             rows={4}
           />
         </label>
-        <label>
-          선택지 (|로 구분):
-          <textarea 
-            value={formData.choices}
-            onChange={(e) => handleInputChange('choices', e.target.value)}
-            placeholder="선택지 1|선택지 2|선택지 3"
-            rows={2}
-          />
-        </label>
+        <label>선택지:</label>
+        <div className="choices-container">
+          {choices.map((choice, index) => (
+            <div key={index} className="choice-input-group">
+              <input
+                type="text"
+                value={choice.label || ''}
+                onChange={(e) => handleChoiceChange(index, 'label', e.target.value)}
+                placeholder={`선택지 ${index + 1} 텍스트`}
+                className="choice-input"
+              />
+              <input
+                type="number"
+                value={choice.targetNodeId || ''}
+                onChange={(e) => handleChoiceChange(index, 'targetNodeId', parseInt(e.target.value) || null)}
+                placeholder="타겟 노드 ID"
+                className="choice-target-input"
+              />
+              <button
+                type="button"
+                onClick={() => removeChoice(index)}
+                className="remove-choice-btn"
+                title="선택지 삭제"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+          <button
+            type="button"
+            onClick={addChoice}
+            className="add-choice-btn"
+          >
+            ➕ 선택지 추가
+          </button>
+        </div>
         <label>
           보상 (키:값,키:값 형태):
           <input 

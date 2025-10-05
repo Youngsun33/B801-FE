@@ -1,3 +1,67 @@
+/* 스토리 편집기 관련 스타일 */
+.story-editor-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.editor-header h2 {
+  margin: 0;
+  color: #495057;
+  font-size: 1.5rem;
+}
+
+.editor-status {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.status-loading {
+  color: #007bff;
+  font-weight: 500;
+}
+
+.status-saving {
+  color: #28a745;
+  font-weight: 500;
+}
+
+.status-ready {
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.refresh-btn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.refresh-btn:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.refresh-btn:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
 /* 관리자 페이지 전체 레이아웃 */
 .admin-layout {
   display: flex;
@@ -109,10 +173,36 @@
 }
 
 /* 대시보드 */
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
 .dashboard h2 {
   color: #333;
-  margin-bottom: 30px;
+  margin: 0;
   font-size: 1.6rem;
+}
+
+.refresh-btn {
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.refresh-btn:hover {
+  background: #5a6fd8;
+  transform: translateY(-1px);
 }
 
 .dashboard-stats {
@@ -148,6 +238,44 @@
   font-size: 2.5rem;
   font-weight: 700;
   color: #333;
+}
+
+.stat-label {
+  margin: 8px 0 0 0;
+  font-size: 0.85rem;
+  color: #888;
+  font-weight: 400;
+}
+
+.stat-card.loading {
+  border-left-color: #ffa500;
+  background: linear-gradient(135deg, #fff8e1 0%, #ffffff 100%);
+}
+
+.stat-card.error {
+  border-left-color: #e74c3c;
+  background: linear-gradient(135deg, #ffeaea 0%, #ffffff 100%);
+}
+
+.dashboard-info {
+  margin-top: 30px;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #667eea;
+}
+
+.last-updated {
+  margin: 0 0 5px 0;
+  color: #666;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.auto-refresh {
+  margin: 0;
+  color: #888;
+  font-size: 0.85rem;
 }
 
 /* 스토리 편집기 */
@@ -435,6 +563,86 @@
 
 .editor-buttons button {
   flex: 1;
+}
+
+/* 선택지 입력 컨테이너 */
+.choices-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 5px;
+}
+
+.choice-input-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.choice-input {
+  flex: 2;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.choice-target-input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.choice-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.remove-choice-btn {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.remove-choice-btn:hover {
+  background: #c0392b;
+  transform: scale(1.1);
+}
+
+.add-choice-btn {
+  background: #27ae60;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  align-self: flex-start;
+}
+
+.add-choice-btn:hover {
+  background: #229954;
+  transform: translateY(-1px);
 }
 
 .loading {
