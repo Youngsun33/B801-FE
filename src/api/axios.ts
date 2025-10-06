@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Axios 인스턴스 생성
 const apiClient = axios.create({
-  baseURL: '/api', // Vite 프록시를 통해 백엔드로 연결
+  baseURL: 'http://localhost:5000/api', // 직접 백엔드로 연결
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

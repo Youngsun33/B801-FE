@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import { getStoryNode, chooseStoryOption } from '../api/story';
+import { getStoryNode, chooseStoryOption, enterStoryDay } from '../api/story';
 import { StoryNode } from '../api/story';
 import { getInventory, getUserStoryAbilities, getUserStoryItems, getUserCheckpoints, loadCheckpoint, InventoryItem, UserStoryAbility, UserStoryItem, UserCheckpoint } from '../api/inventory';
 
@@ -69,20 +69,8 @@ const GameStoryPage = () => {
     setError('');
 
     try {
-      // 게임 시작 (1일차부터 시작) - 직접 API 호출
-      const response = await fetch('http://localhost:5000/api/story/day/1/enter', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const gameStart = await response.json();
+      // 게임 시작 (1일차부터 시작) - axios 사용
+      const gameStart = await enterStoryDay(1);
       console.log('게임 시작 응답:', gameStart);
       
       // startNode가 있는지 확인
@@ -202,6 +190,15 @@ const GameStoryPage = () => {
       console.log('다음 노드 로드:', result.nodeId);
       const nextNode = await getStoryNode(result.nodeId);
       console.log('다음 노드:', nextNode);
+      console.log('다음 노드의 선택지들:', nextNode.choices);
+      if (nextNode.choices) {
+        nextNode.choices.forEach((choice, index) => {
+          console.log(`선택지 ${index + 1}:`, choice);
+          console.log(`  - id: ${choice.id}`);
+          console.log(`  - targetNodeId: ${choice.targetNodeId}`);
+          console.log(`  - label: ${choice.label}`);
+        });
+      }
       setCurrentNode(nextNode);
     } catch (err: any) {
       console.error('선택지 처리 실패:', err);
@@ -418,7 +415,18 @@ const GameStoryPage = () => {
               {currentNode.choices.map((choice) => (
                 <button
                   key={choice.id}
-                  onClick={() => handleChoice(choice.id)}
+                  onClick={() => {
+                    console.log('선택지 클릭:', choice);
+                    console.log('targetNodeId:', choice.targetNodeId);
+                    console.log('id:', choice.id);
+                    console.log('targetNodeId 타입:', typeof choice.targetNodeId);
+                    console.log('targetNodeId 값:', choice.targetNodeId);
+                    
+                    // 선택지의 실제 ID 사용
+                    const choiceId = choice.id;
+                    console.log('최종 choiceId:', choiceId);
+                    handleChoice(choiceId);
+                  }}
                   disabled={isLoading}
                   className="w-full py-3 px-4 text-left rounded-lg bg-white border border-gray-300 hover:bg-gray-50 active:bg-gray-100 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                 >

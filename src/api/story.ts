@@ -25,6 +25,7 @@ export interface StoryNode {
   choices?: Array<{
     id: number;
     label: string;
+    targetNodeId?: number;
     requiresItemId?: number;
   }>;
   rewards?: {
@@ -51,20 +52,20 @@ export interface ChoiceResult {
 
 // 액션 포인트 상태 조회
 export const getActionPointStatus = async (): Promise<ActionPointStatus> => {
-  const response = await apiClient.get<ActionPointStatus>('http://localhost:5000/api/story/action-point');
+  const response = await apiClient.get<ActionPointStatus>('/story/action-point');
   return response.data;
 };
 
 // 스토리 진행 상황 조회
 export const getStoryProgress = async (day?: number): Promise<StoryProgress> => {
   const params = day ? { day } : {};
-  const response = await apiClient.get<StoryProgress>('http://localhost:5000/api/story/progress', { params });
+  const response = await apiClient.get<StoryProgress>('/story/progress', { params });
   return response.data;
 };
 
 // 특정 스토리 노드 조회
 export const getStoryNode = async (nodeId: number): Promise<StoryNode> => {
-  const response = await apiClient.get<StoryNode>(`http://localhost:5000/api/story/nodes/${nodeId}`);
+  const response = await apiClient.get<StoryNode>(`/story/nodes/${nodeId}`);
   return response.data;
 };
 
@@ -72,7 +73,7 @@ export const getStoryNode = async (nodeId: number): Promise<StoryNode> => {
 export const chooseStoryOption = async (data: {
   choiceId: number;
 }): Promise<ChoiceResult> => {
-  const response = await apiClient.post<ChoiceResult>('http://localhost:5000/api/story/choose', data);
+  const response = await apiClient.post<ChoiceResult>('/story/choose', data);
   return response.data;
 };
 
@@ -83,7 +84,7 @@ export const autosaveStory = async (data: {
   visitedNodes: number[];
   collectedItems: number[];
 }): Promise<void> => {
-  await apiClient.post('http://localhost:5000/api/story/autosave', data);
+  await apiClient.post('/story/autosave', data);
 };
 
 // 특정 일차 스토리 입장
@@ -92,7 +93,7 @@ export const enterStoryDay = async (day: number): Promise<{
   startNode: StoryNode;
   actionPointsRemaining: number;
 }> => {
-  const response = await apiClient.post(`http://localhost:5000/api/story/day/${day}/enter`);
+  const response = await apiClient.post(`/story/day/${day}/enter`);
   return response.data;
 };
 
