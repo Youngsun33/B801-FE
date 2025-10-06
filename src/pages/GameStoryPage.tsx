@@ -5,12 +5,8 @@ import { getStoryNode, chooseStoryOption, enterStoryDay } from '../api/story';
 import { StoryNode } from '../api/story';
 import { getInventory, getUserStoryAbilities, getUserStoryItems, getUserCheckpoints, loadCheckpoint, InventoryItem, UserStoryAbility, UserStoryItem, UserCheckpoint } from '../api/inventory';
 
-// 아이콘 import
-import heartIcon from '../assets/images/heart.png';
-import mentalIcon from '../assets/images/mental.png';
-import moneyIcon from '../assets/images/money.png';
-import inventoryIcon from '../assets/images/인벤.png';
-import introImage from '../assets/images/1-1.png';
+// 이미지 URL 상수
+import { IMAGES } from '../constants/images';
 
 const GameStoryPage = () => {
   const navigate = useNavigate();
@@ -334,7 +330,7 @@ const GameStoryPage = () => {
               {[...Array(hearts)].map((_, i) => (
                 <img
                   key={`heart-${i}`}
-                  src={heartIcon}
+                  src={IMAGES.HEART}
                   alt="heart"
                   className="w-7 h-7"
                 />
@@ -346,7 +342,7 @@ const GameStoryPage = () => {
               {[...Array(mental)].map((_, i) => (
                 <img
                   key={`mental-${i}`}
-                  src={mentalIcon}
+                  src={IMAGES.MENTAL}
                   alt="mental"
                   className="w-7 h-7"
                 />
@@ -355,7 +351,7 @@ const GameStoryPage = () => {
 
             {/* 돈 */}
             <div className="flex items-center gap-1">
-              <img src={moneyIcon} alt="money" className="w-7 h-7" />
+              <img src={IMAGES.MONEY} alt="money" className="w-7 h-7" />
               <span className="text-base font-semibold text-gray-800 min-w-[20px]">{gold}</span>
             </div>
           </div>
@@ -366,7 +362,7 @@ const GameStoryPage = () => {
             className="p-1"
             disabled={isLoading}
           >
-            <img src={inventoryIcon} alt="inventory" className="w-6 h-6" />
+            <img src={IMAGES.INVENTORY} alt="inventory" className="w-6 h-6" />
           </button>
         </div>
 
@@ -379,7 +375,7 @@ const GameStoryPage = () => {
               {currentNode.nodeId === 100 ? (
                 // 인트로 이미지
                 <img
-                  src={introImage}
+                  src={IMAGES.STORY_1_1}
                   alt="intro"
                   className="w-full rounded-lg"
                 />

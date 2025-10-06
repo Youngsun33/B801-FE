@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import homeImage from '@/assets/images/home.png';
+import { IMAGES } from '../constants/images';
 import Header from '@/components/layout/Header';
 import { login } from '@/api/auth';
 import { useAuthStore } from '@/store/authStore';
@@ -48,7 +48,7 @@ const LoginPage = () => {
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ 
-          backgroundImage: `url(${homeImage})`,
+          backgroundImage: `url(${IMAGES.HOME})`,
           filter: 'brightness(0.4) blur(2px)'
         }}
       />

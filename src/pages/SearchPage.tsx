@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import homeImage from '@/assets/images/home.png';
+import { IMAGES } from '../constants/images';
 import Header from '@/components/layout/Header';
 import { getActionPointStatus, enterStoryDay } from '@/api/story';
 import { useAuthStore } from '@/store/authStore';
@@ -80,7 +80,7 @@ const SearchPage = () => {
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ 
-          backgroundImage: `url(${homeImage})`,
+          backgroundImage: `url(${IMAGES.HOME})`,
           filter: 'brightness(0.25) blur(4px)'
         }}
       />
