@@ -691,6 +691,7 @@ const UserManagement: React.FC = () => {
     if (!editingUser) return;
     
     try {
+      // 기본 정보 업데이트
       await fetch(`https://b801-be.azurewebsites.net/api/admin/users/${editingUser.id}`, {
         method: 'PUT',
         headers: {
@@ -706,6 +707,22 @@ const UserManagement: React.FC = () => {
           is_alive: editingUser.is_alive
         })
       });
+
+      // 조사 기회 업데이트
+      if (editingUser.daily_investigation_count?.[0]) {
+        await fetch(`https://b801-be.azurewebsites.net/api/admin/users/${editingUser.id}/investigation-count`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            day: editingUser.current_day || 1,
+            count: editingUser.daily_investigation_count[0].count
+          })
+        });
+      }
+
       alert('유저 정보가 수정되었습니다.');
       fetchUsers();
       handleSelectUser(editingUser);
@@ -807,7 +824,7 @@ const UserManagement: React.FC = () => {
               <div className="user-card-investigation">
                 <span>📍 Day {user.current_day}</span>
                 <span>
-                  🔍 조사 기회: {user.daily_investigation_count[0]?.count || 0}/3
+                  🔍 조사: {3 - (user.daily_investigation_count[0]?.count || 0)}/3
                 </span>
               </div>
               <div className="user-card-checkpoints">
@@ -868,6 +885,27 @@ const UserManagement: React.FC = () => {
                   value={editingUser?.current_day || 0}
                   onChange={(e) => setEditingUser({ ...editingUser, current_day: parseInt(e.target.value) || 0 })}
                 />
+              </div>
+              <div className="form-row">
+                <label>조사 사용 횟수 (Day {editingUser?.current_day || 1})</label>
+                <input
+                  type="number"
+                  min="0"
+                  max="3"
+                  value={editingUser?.daily_investigation_count?.[0]?.count || 0}
+                  onChange={(e) => {
+                    const newCount = Math.max(0, Math.min(3, parseInt(e.target.value) || 0));
+                    setEditingUser({ 
+                      ...editingUser, 
+                      daily_investigation_count: [{ 
+                        ...editingUser?.daily_investigation_count?.[0],
+                        count: newCount,
+                        day: editingUser?.current_day || 1
+                      }]
+                    });
+                  }}
+                />
+                <small style={{color: '#9a9a9a', marginTop: '4px'}}>남은 기회: {3 - (editingUser?.daily_investigation_count?.[0]?.count || 0)}</small>
               </div>
               <div className="form-row">
                 <label>생존 여부</label>
@@ -931,11 +969,9 @@ const UserManagement: React.FC = () => {
                   <div>
                     <strong>{checkpoint.title}</strong>
                     <span className="node-id">Node #{checkpoint.node_id}</span>
-                    <div className="checkpoint-stats">
-                      <span>HP: {checkpoint.hp}</span>
-                      <span>Energy: {checkpoint.energy}</span>
-                      <span>Gold: {checkpoint.gold}</span>
-                    </div>
+                    <p className="description" style={{margin: '4px 0', fontSize: '0.85rem', color: '#9a9a9a'}}>
+                      체크포인트는 노드 위치만 저장됩니다. 로드 시 현재 상태(HP/에너지/골드/아이템/능력)를 유지합니다.
+                    </p>
                     <span className="saved-at">{new Date(checkpoint.saved_at).toLocaleString()}</span>
                   </div>
                   <button className="delete-btn-small" onClick={() => handleDeleteCheckpoint(checkpoint.id)}>🗑️</button>

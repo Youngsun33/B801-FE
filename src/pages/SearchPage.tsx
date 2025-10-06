@@ -48,23 +48,9 @@ const SearchPage = () => {
       return;
     }
 
-    setIsLoading(true);
-    setError('');
-
-    try {
-      // 게임 시작 - 조사 기회 1회 소모
-      const currentDay = user.current_day > 0 ? user.current_day : 1;
-      console.log('게임 시작, 조사 기회 소모:', currentDay);
-      await enterStoryDay(currentDay);
-      
-      // 게임 스토리 페이지로 이동
-      navigate('/game');
-    } catch (err: any) {
-      console.error('Failed to start game:', err);
-      setError(err.response?.data?.error || '게임 시작에 실패했습니다.');
-    } finally {
-      setIsLoading(false);
-    }
+    // 조사 기회 확인만 하고, 실제 조사 시작은 GameStoryPage에서
+    // 여기서는 바로 게임 페이지로 이동
+    navigate('/game');
   };
 
   const handleCancel = () => {
