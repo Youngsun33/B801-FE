@@ -501,11 +501,8 @@ const GameStoryPage = () => {
                     {abilities.length > 0 ? (
                       abilities.map(ability => (
                         <div key={ability.userStoryAbilityId} className="pb-3 border-b border-gray-700">
-                          <p className="text-white text-base mb-1">
+                          <p className="text-white text-base">
                             {ability.storyAbility.name} x {ability.quantity}
-                          </p>
-                          <p className="text-gray-300 text-sm leading-relaxed">
-                            {ability.storyAbility.description}
                           </p>
                         </div>
                       ))
