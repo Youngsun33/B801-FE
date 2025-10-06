@@ -157,7 +157,7 @@ const VisualStoryEditor: React.FC<VisualStoryEditorProps> = ({
   const handleAddNode = async () => {
     try {
       // 백엔드에 새 노드 생성
-      const response = await fetch('http://localhost:5000/api/admin/story-nodes', {
+      const response = await fetch('https://b801-be.azurewebsites.net/api/admin/story-nodes', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -599,7 +599,7 @@ const NodeEditor: React.FC<NodeEditorProps> = ({ node, saving = false, onSave, o
       const formData = new FormData();
       formData.append('image', file);
 
-      const response = await fetch('http://localhost:5000/api/admin/upload/image', {
+      const response = await fetch('https://b801-be.azurewebsites.net/api/admin/upload/image', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,

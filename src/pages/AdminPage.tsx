@@ -86,7 +86,7 @@ const AdminDashboard: React.FC = () => {
   const loadAdminStats = async () => {
     try {
       setError(null);
-      const response = await fetch('http://localhost:5000/api/admin/stats', {
+      const response = await fetch('https://b801-be.azurewebsites.net/api/admin/stats', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
         },
@@ -202,7 +202,7 @@ const StoryEditor: React.FC = () => {
       const formData = new FormData();
       formData.append('twineFile', file);
 
-      const response = await fetch('http://localhost:5000/api/admin/import-twine', {
+      const response = await fetch('https://b801-be.azurewebsites.net/api/admin/import-twine', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
@@ -312,7 +312,7 @@ const VisualStoryEditorWrapper: React.FC = () => {
     setLoading(true);
     try {
       console.log('🔄 스토리 노드 로딩 시작...');
-      const response = await fetch('http://localhost:5000/api/admin/story-nodes', {
+      const response = await fetch('https://b801-be.azurewebsites.net/api/admin/story-nodes', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
         },
@@ -394,7 +394,7 @@ const VisualStoryEditorWrapper: React.FC = () => {
     setSaving(true);
     try {
       console.log(`💾 노드 ${nodeId} 저장 중...`, nodeData);
-      const response = await fetch(`http://localhost:5000/api/admin/story-nodes/${nodeId}`, {
+      const response = await fetch(`https://b801-be.azurewebsites.net/api/admin/story-nodes/${nodeId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -425,7 +425,7 @@ const VisualStoryEditorWrapper: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`http://localhost:5000/api/admin/story-nodes/${nodeId}`, {
+      const response = await fetch(`https://b801-be.azurewebsites.net/api/admin/story-nodes/${nodeId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,

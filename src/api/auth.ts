@@ -32,13 +32,13 @@ export interface RefreshResponse {
 
 // 회원가입
 export const register = async (data: RegisterRequest): Promise<AuthResponse> => {
-  const response = await apiClient.post<AuthResponse>('http://localhost:5000/api/auth/register', data);
+  const response = await apiClient.post<AuthResponse>('/auth/register', data);
   return response.data;
 };
 
 // 로그인
 export const login = async (data: LoginRequest): Promise<AuthResponse> => {
-  const response = await apiClient.post<AuthResponse>('http://localhost:5000/api/auth/login', data);
+  const response = await apiClient.post<AuthResponse>('/auth/login', data);
   return response.data;
 };
 
@@ -46,7 +46,7 @@ export const login = async (data: LoginRequest): Promise<AuthResponse> => {
 export const refreshToken = async (): Promise<RefreshResponse> => {
   const refreshToken = localStorage.getItem('refreshToken');
   const response = await apiClient.post<RefreshResponse>(
-    'http://localhost:5000/api/auth/refresh',
+    '/auth/refresh',
     {},
     {
       headers: {
@@ -60,7 +60,7 @@ export const refreshToken = async (): Promise<RefreshResponse> => {
 // 로그아웃
 export const logout = async (): Promise<void> => {
   const refreshToken = localStorage.getItem('refreshToken');
-  await apiClient.post('http://localhost:5000/api/auth/logout', { refreshToken });
+  await apiClient.post('/auth/logout', { refreshToken });
   
   // 로컬 스토리지에서 토큰 제거
   localStorage.removeItem('accessToken');

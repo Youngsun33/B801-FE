@@ -98,7 +98,7 @@ const GameStoryPage = () => {
       }
 
       // 남은 조사 기회 가져오기
-      const actionPoints = await fetch('http://localhost:5000/api/story/action-point', {
+      const actionPoints = await fetch('https://b801-be.azurewebsites.net/api/story/action-point', {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
         }

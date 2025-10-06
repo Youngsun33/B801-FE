@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Axios 인스턴스 생성
 const apiClient = axios.create({
-  baseURL: 'http://localhost:5000/api', // 직접 백엔드로 연결
+  baseURL: 'https://b801-be.azurewebsites.net/api', // Azure 백엔드로 연결
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',

@@ -17,12 +17,25 @@ export default defineConfig({
       '@types': path.resolve(__dirname, './src/types')
     }
   },
+  build: {
+    outDir: 'dist',
+    assetsDir: 'assets',
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+        entryFileNames: 'assets/[name].[hash].js',
+        chunkFileNames: 'assets/[name].[hash].js',
+        assetFileNames: 'assets/[name].[hash].[ext]'
+      }
+    }
+  },
   server: {
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:5000/api',
-        changeOrigin: true
+        target: 'https://b801-be.azurewebsites.net/api',
+        changeOrigin: true,
+        secure: true
       }
     }
   }
