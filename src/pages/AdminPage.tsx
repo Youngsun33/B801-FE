@@ -649,9 +649,14 @@ const UserManagement: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
   const [editingUser, setEditingUser] = useState<any>(null);
+  const [showAddItemModal, setShowAddItemModal] = useState(false);
+  const [showAddAbilityModal, setShowAddAbilityModal] = useState(false);
+  const [allItems, setAllItems] = useState<any[]>([]);
+  const [allAbilities, setAllAbilities] = useState<any[]>([]);
 
   useEffect(() => {
     fetchUsers();
+    fetchResources();
   }, []);
 
   const fetchUsers = async () => {
@@ -669,6 +674,30 @@ const UserManagement: React.FC = () => {
       alert('유저 목록을 불러오는 데 실패했습니다.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchResources = async () => {
+    try {
+      // 아이템 목록
+      const itemsResponse = await fetch('https://b801-be.azurewebsites.net/api/admin/resources?type=ITEM', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      });
+      const itemsData = await itemsResponse.json();
+      setAllItems(itemsData.resources || []);
+
+      // 능력 목록
+      const abilitiesResponse = await fetch('https://b801-be.azurewebsites.net/api/admin/resources?type=SKILL', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      });
+      const abilitiesData = await abilitiesResponse.json();
+      setAllAbilities(abilitiesData.resources || []);
+    } catch (error) {
+      console.error('리소스 목록 조회 실패:', error);
     }
   };
 
@@ -732,11 +761,11 @@ const UserManagement: React.FC = () => {
     }
   };
 
-  const handleDeleteItem = async (inventoryId: number) => {
+  const handleDeleteItem = async (resourceId: number) => {
     if (!confirm('이 아이템을 삭제하시겠습니까?')) return;
     
     try {
-      await fetch(`https://b801-be.azurewebsites.net/api/admin/users/items/${inventoryId}`, {
+      await fetch(`https://b801-be.azurewebsites.net/api/admin/users/resources/${resourceId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
@@ -750,11 +779,11 @@ const UserManagement: React.FC = () => {
     }
   };
 
-  const handleDeleteAbility = async (abilityId: number) => {
+  const handleDeleteAbility = async (resourceId: number) => {
     if (!confirm('이 능력을 삭제하시겠습니까?')) return;
     
     try {
-      await fetch(`https://b801-be.azurewebsites.net/api/admin/users/abilities/${abilityId}`, {
+      await fetch(`https://b801-be.azurewebsites.net/api/admin/users/resources/${resourceId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
@@ -783,6 +812,54 @@ const UserManagement: React.FC = () => {
     } catch (error) {
       console.error('체크포인트 삭제 실패:', error);
       alert('체크포인트 삭제에 실패했습니다.');
+    }
+  };
+
+  const handleAddItem = async (resourceId: number) => {
+    if (!selectedUser) return;
+    
+    try {
+      await fetch(`https://b801-be.azurewebsites.net/api/admin/users/${selectedUser.id}/items`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          resource_id: resourceId,
+          quantity: 1
+        })
+      });
+      alert('아이템이 추가되었습니다.');
+      setShowAddItemModal(false);
+      handleSelectUser(selectedUser);
+    } catch (error) {
+      console.error('아이템 추가 실패:', error);
+      alert('아이템 추가에 실패했습니다.');
+    }
+  };
+
+  const handleAddAbility = async (resourceId: number) => {
+    if (!selectedUser) return;
+    
+    try {
+      await fetch(`https://b801-be.azurewebsites.net/api/admin/users/${selectedUser.id}/abilities`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          resource_id: resourceId,
+          quantity: 1
+        })
+      });
+      alert('능력이 추가되었습니다.');
+      setShowAddAbilityModal(false);
+      handleSelectUser(selectedUser);
+    } catch (error) {
+      console.error('능력 추가 실패:', error);
+      alert('능력 추가에 실패했습니다.');
     }
   };
 
@@ -921,28 +998,35 @@ const UserManagement: React.FC = () => {
             </div>
           </div>
 
-          {/* 인벤토리 */}
+          {/* 스토리 아이템 */}
           <div className="detail-card">
-            <h3>🎒 인벤토리 ({selectedUser.inventory?.length || 0}개)</h3>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px'}}>
+              <h3 style={{margin: 0}}>🎒 스토리 아이템 ({selectedUser.user_story_items?.length || 0}개)</h3>
+              <button className="add-btn" onClick={() => setShowAddItemModal(true)}>➕ 추가</button>
+            </div>
             <div className="inventory-list">
-              {selectedUser.inventory?.map((inv: any) => (
-                <div key={inv.id} className="inventory-item">
+              {selectedUser.user_story_items?.map((item: any) => (
+                <div key={item.id} className="inventory-item">
                   <div>
-                    <strong>{inv.item.name}</strong>
-                    <span className="quantity">x{inv.quantity}</span>
+                    <strong>{item.story_item.name}</strong>
+                    <span className="quantity">x{item.quantity}</span>
+                    <p className="description">{item.story_item.description}</p>
                   </div>
-                  <button className="delete-btn-small" onClick={() => handleDeleteItem(inv.id)}>🗑️</button>
+                  <button className="delete-btn-small" onClick={() => handleDeleteItem(item.id)}>🗑️</button>
                 </div>
               ))}
-              {(!selectedUser.inventory || selectedUser.inventory.length === 0) && (
-                <p className="empty-message">인벤토리가 비어있습니다.</p>
+              {(!selectedUser.user_story_items || selectedUser.user_story_items.length === 0) && (
+                <p className="empty-message">보유한 아이템이 없습니다.</p>
               )}
             </div>
           </div>
 
           {/* 스토리 능력 */}
           <div className="detail-card">
-            <h3>✨ 스토리 능력 ({selectedUser.user_story_abilities?.length || 0}개)</h3>
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px'}}>
+              <h3 style={{margin: 0}}>✨ 스토리 능력 ({selectedUser.user_story_abilities?.length || 0}개)</h3>
+              <button className="add-btn" onClick={() => setShowAddAbilityModal(true)}>➕ 추가</button>
+            </div>
             <div className="ability-list">
               {selectedUser.user_story_abilities?.map((ability: any) => (
                 <div key={ability.id} className="ability-item">
@@ -981,6 +1065,50 @@ const UserManagement: React.FC = () => {
                 <p className="empty-message">저장된 체크포인트가 없습니다.</p>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* 아이템 추가 모달 */}
+      {showAddItemModal && (
+        <div className="modal-overlay" onClick={() => setShowAddItemModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3>🎒 아이템 추가</h3>
+            <div className="resource-list">
+              {allItems.map((item: any) => (
+                <div
+                  key={item.id}
+                  className="resource-item"
+                  onClick={() => handleAddItem(item.id)}
+                >
+                  <strong>{item.name}</strong>
+                  <p className="description">{item.description}</p>
+                </div>
+              ))}
+            </div>
+            <button className="close-modal-btn" onClick={() => setShowAddItemModal(false)}>닫기</button>
+          </div>
+        </div>
+      )}
+
+      {/* 능력 추가 모달 */}
+      {showAddAbilityModal && (
+        <div className="modal-overlay" onClick={() => setShowAddAbilityModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <h3>✨ 능력 추가</h3>
+            <div className="resource-list">
+              {allAbilities.map((ability: any) => (
+                <div
+                  key={ability.id}
+                  className="resource-item"
+                  onClick={() => handleAddAbility(ability.id)}
+                >
+                  <strong>{ability.name}</strong>
+                  <p className="description">{ability.description}</p>
+                </div>
+              ))}
+            </div>
+            <button className="close-modal-btn" onClick={() => setShowAddAbilityModal(false)}>닫기</button>
           </div>
         </div>
       )}
