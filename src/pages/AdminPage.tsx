@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
 import './AdminPage.css';
 import { useAuthStore } from '@/store/authStore';
@@ -574,7 +574,7 @@ const NodeEditor: React.FC<{
               <input
                 type="number"
                 value={choice.targetNodeId || ''}
-                onChange={(e) => handleChoiceChange(index, 'targetNodeId', parseInt(e.target.value) || null)}
+                onChange={(e) => handleChoiceChange(index, 'targetNodeId', e.target.value)}
                 placeholder="타겟 노드 ID"
                 className="choice-target-input"
               />
@@ -645,10 +645,309 @@ const StoryPreview: React.FC = () => {
 
 // 사용자 관리 컴포넌트
 const UserManagement: React.FC = () => {
+  const [users, setUsers] = useState<any[]>([]);
+  const [selectedUser, setSelectedUser] = useState<any | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [editingUser, setEditingUser] = useState<any>(null);
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('https://b801-be.azurewebsites.net/api/admin/users', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      });
+      const data = await response.json();
+      setUsers(data.users);
+    } catch (error) {
+      console.error('유저 목록 조회 실패:', error);
+      alert('유저 목록을 불러오는 데 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSelectUser = async (user: any) => {
+    try {
+      const response = await fetch(`https://b801-be.azurewebsites.net/api/admin/users/${user.id}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      });
+      const data = await response.json();
+      setSelectedUser(data.user);
+      setEditingUser({ ...data.user });
+    } catch (error) {
+      console.error('유저 상세 조회 실패:', error);
+    }
+  };
+
+  const handleUpdateUser = async () => {
+    if (!editingUser) return;
+    
+    try {
+      await fetch(`https://b801-be.azurewebsites.net/api/admin/users/${editingUser.id}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          hp: editingUser.hp,
+          energy: editingUser.energy,
+          gold: editingUser.gold,
+          attack_power: editingUser.attack_power,
+          current_day: editingUser.current_day,
+          is_alive: editingUser.is_alive
+        })
+      });
+      alert('유저 정보가 수정되었습니다.');
+      fetchUsers();
+      handleSelectUser(editingUser);
+    } catch (error) {
+      console.error('유저 정보 수정 실패:', error);
+      alert('유저 정보 수정에 실패했습니다.');
+    }
+  };
+
+  const handleDeleteItem = async (inventoryId: number) => {
+    if (!confirm('이 아이템을 삭제하시겠습니까?')) return;
+    
+    try {
+      await fetch(`https://b801-be.azurewebsites.net/api/admin/users/items/${inventoryId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      });
+      alert('아이템이 삭제되었습니다.');
+      handleSelectUser(selectedUser);
+    } catch (error) {
+      console.error('아이템 삭제 실패:', error);
+      alert('아이템 삭제에 실패했습니다.');
+    }
+  };
+
+  const handleDeleteAbility = async (abilityId: number) => {
+    if (!confirm('이 능력을 삭제하시겠습니까?')) return;
+    
+    try {
+      await fetch(`https://b801-be.azurewebsites.net/api/admin/users/abilities/${abilityId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      });
+      alert('능력이 삭제되었습니다.');
+      handleSelectUser(selectedUser);
+    } catch (error) {
+      console.error('능력 삭제 실패:', error);
+      alert('능력 삭제에 실패했습니다.');
+    }
+  };
+
+  const handleDeleteCheckpoint = async (checkpointId: number) => {
+    if (!confirm('이 체크포인트를 삭제하시겠습니까?')) return;
+    
+    try {
+      await fetch(`https://b801-be.azurewebsites.net/api/admin/users/checkpoints/${checkpointId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      });
+      alert('체크포인트가 삭제되었습니다.');
+      handleSelectUser(selectedUser);
+    } catch (error) {
+      console.error('체크포인트 삭제 실패:', error);
+      alert('체크포인트 삭제에 실패했습니다.');
+    }
+  };
+
+  if (loading) {
+    return <div className="loading">로딩 중...</div>;
+  }
+
   return (
     <div className="user-management">
-      <h2>사용자 관리</h2>
-      <p>사용자 목록과 관리 기능이 여기에 표시됩니다.</p>
+      <div className="user-list-section">
+        <h2>👥 사용자 목록 ({users.length}명)</h2>
+        <div className="user-list">
+          {users.map((user) => (
+            <div
+              key={user.id}
+              className={`user-card ${selectedUser?.id === user.id ? 'selected' : ''}`}
+              onClick={() => handleSelectUser(user)}
+            >
+              <div className="user-card-header">
+                <h3>{user.username}</h3>
+                <span className={`status-badge ${user.is_alive ? 'alive' : 'dead'}`}>
+                  {user.is_alive ? '생존' : '사망'}
+                </span>
+              </div>
+              <div className="user-card-stats">
+                <div className="stat-item">
+                  <span className="stat-label">❤️ HP</span>
+                  <span className="stat-value">{user.hp}</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">⚡ Energy</span>
+                  <span className="stat-value">{user.energy}</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">💰 Gold</span>
+                  <span className="stat-value">{user.gold}</span>
+                </div>
+              </div>
+              <div className="user-card-investigation">
+                <span>📍 Day {user.current_day}</span>
+                <span>
+                  🔍 조사 기회: {user.daily_investigation_count[0]?.count || 0}/3
+                </span>
+              </div>
+              <div className="user-card-checkpoints">
+                <span>💾 체크포인트: {user.user_checkpoints.length}개</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {selectedUser && (
+        <div className="user-detail-section">
+          <div className="detail-header">
+            <h2>📋 {selectedUser.username} 상세 정보</h2>
+            <button className="close-btn" onClick={() => setSelectedUser(null)}>✕</button>
+          </div>
+
+          {/* 기본 정보 수정 */}
+          <div className="detail-card">
+            <h3>⚙️ 기본 정보 수정</h3>
+            <div className="edit-form">
+              <div className="form-row">
+                <label>HP</label>
+                <input
+                  type="number"
+                  value={editingUser?.hp || 0}
+                  onChange={(e) => setEditingUser({ ...editingUser, hp: parseInt(e.target.value) || 0 })}
+                />
+              </div>
+              <div className="form-row">
+                <label>Energy</label>
+                <input
+                  type="number"
+                  value={editingUser?.energy || 0}
+                  onChange={(e) => setEditingUser({ ...editingUser, energy: parseInt(e.target.value) || 0 })}
+                />
+              </div>
+              <div className="form-row">
+                <label>Gold</label>
+                <input
+                  type="number"
+                  value={editingUser?.gold || 0}
+                  onChange={(e) => setEditingUser({ ...editingUser, gold: parseInt(e.target.value) || 0 })}
+                />
+              </div>
+              <div className="form-row">
+                <label>공격력</label>
+                <input
+                  type="number"
+                  value={editingUser?.attack_power || 0}
+                  onChange={(e) => setEditingUser({ ...editingUser, attack_power: parseInt(e.target.value) || 0 })}
+                />
+              </div>
+              <div className="form-row">
+                <label>Day</label>
+                <input
+                  type="number"
+                  value={editingUser?.current_day || 0}
+                  onChange={(e) => setEditingUser({ ...editingUser, current_day: parseInt(e.target.value) || 0 })}
+                />
+              </div>
+              <div className="form-row">
+                <label>생존 여부</label>
+                <select
+                  value={editingUser?.is_alive ? 'true' : 'false'}
+                  onChange={(e) => setEditingUser({ ...editingUser, is_alive: e.target.value === 'true' })}
+                >
+                  <option value="true">생존</option>
+                  <option value="false">사망</option>
+                </select>
+              </div>
+              <button className="save-btn" onClick={handleUpdateUser}>💾 저장</button>
+            </div>
+          </div>
+
+          {/* 인벤토리 */}
+          <div className="detail-card">
+            <h3>🎒 인벤토리 ({selectedUser.inventory?.length || 0}개)</h3>
+            <div className="inventory-list">
+              {selectedUser.inventory?.map((inv: any) => (
+                <div key={inv.id} className="inventory-item">
+                  <div>
+                    <strong>{inv.item.name}</strong>
+                    <span className="quantity">x{inv.quantity}</span>
+                  </div>
+                  <button className="delete-btn-small" onClick={() => handleDeleteItem(inv.id)}>🗑️</button>
+                </div>
+              ))}
+              {(!selectedUser.inventory || selectedUser.inventory.length === 0) && (
+                <p className="empty-message">인벤토리가 비어있습니다.</p>
+              )}
+            </div>
+          </div>
+
+          {/* 스토리 능력 */}
+          <div className="detail-card">
+            <h3>✨ 스토리 능력 ({selectedUser.user_story_abilities?.length || 0}개)</h3>
+            <div className="ability-list">
+              {selectedUser.user_story_abilities?.map((ability: any) => (
+                <div key={ability.id} className="ability-item">
+                  <div>
+                    <strong>{ability.story_ability.name}</strong>
+                    <span className="level">Lv.{ability.quantity}</span>
+                    <p className="description">{ability.story_ability.description}</p>
+                  </div>
+                  <button className="delete-btn-small" onClick={() => handleDeleteAbility(ability.id)}>🗑️</button>
+                </div>
+              ))}
+              {(!selectedUser.user_story_abilities || selectedUser.user_story_abilities.length === 0) && (
+                <p className="empty-message">보유한 능력이 없습니다.</p>
+              )}
+            </div>
+          </div>
+
+          {/* 체크포인트 */}
+          <div className="detail-card">
+            <h3>💾 체크포인트 ({selectedUser.user_checkpoints?.length || 0}개)</h3>
+            <div className="checkpoint-list">
+              {selectedUser.user_checkpoints?.map((checkpoint: any) => (
+                <div key={checkpoint.id} className="checkpoint-item">
+                  <div>
+                    <strong>{checkpoint.title}</strong>
+                    <span className="node-id">Node #{checkpoint.node_id}</span>
+                    <div className="checkpoint-stats">
+                      <span>HP: {checkpoint.hp}</span>
+                      <span>Energy: {checkpoint.energy}</span>
+                      <span>Gold: {checkpoint.gold}</span>
+                    </div>
+                    <span className="saved-at">{new Date(checkpoint.saved_at).toLocaleString()}</span>
+                  </div>
+                  <button className="delete-btn-small" onClick={() => handleDeleteCheckpoint(checkpoint.id)}>🗑️</button>
+                </div>
+              ))}
+              {(!selectedUser.user_checkpoints || selectedUser.user_checkpoints.length === 0) && (
+                <p className="empty-message">저장된 체크포인트가 없습니다.</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
