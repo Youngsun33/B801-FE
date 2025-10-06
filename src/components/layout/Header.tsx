@@ -25,18 +25,16 @@ const Header = ({ showMenu = true }: HeaderProps) => {
   };
 
   const commonMenuItems = [
-    { label: '홈', path: '/' },
+    { label: 'HOME', path: '/' },
   ];
 
   const authenticatedMenuItems = [
-    { label: '서치', path: '/search' },
-    { label: '레이드', path: '/raid' },
-    { label: '마이', path: '/my' },
+    { label: 'SEARCH', path: '/search' },
   ];
 
-  const menuItems = isAuthenticated 
+  const menuItems = isAuthenticated
     ? [...commonMenuItems, ...authenticatedMenuItems]
-    : [...commonMenuItems, { label: '로그인', path: '/login' }];
+    : [...commonMenuItems, { label: 'LOGIN', path: '/login' }];
 
   return (
     <>
@@ -113,7 +111,7 @@ const Header = ({ showMenu = true }: HeaderProps) => {
                     onClick={handleLogout}
                     className="w-full text-left px-4 py-3 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors duration-200 font-medium"
                   >
-                    로그아웃
+                    LOGOUT
                   </button>
                 )}
               </nav>

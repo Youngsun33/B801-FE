@@ -79,19 +79,11 @@ const GameStoryPage = () => {
       console.log('스토리 노드:', node);
       setCurrentNode(node);
       
-      // 초기 상태 설정 (세션 데이터 사용 - 항상 HP 3, Energy 3으로 시작)
-      if (node.session) {
-        setHearts(node.session.hp || 3);
-        setMental(node.session.energy || 3);
-        setGold(node.session.gold || 0);
-        console.log('세션 데이터 로드:', node.session);
-      } else {
-        // 세션 데이터가 없으면 기본값 (조사 시작 시 항상 3)
-        setHearts(3);
-        setMental(3);
-        setGold(user.gold || 0);
-        console.warn('세션 데이터 없음 - 기본값 사용');
-      }
+      // 초기 상태 설정 (조사 시작 시 항상 HP 3, Energy 3으로 시작)
+      setHearts(3);
+      setMental(3);
+      setGold(node.session?.gold || user.gold || 0);
+      console.log('조사 시작 - HP: 3, Energy: 3, Gold:', node.session?.gold || user.gold || 0);
 
       // 남은 조사 기회 가져오기
       const actionPoints = await fetch('https://b801-be.azurewebsites.net/api/story/action-point', {
