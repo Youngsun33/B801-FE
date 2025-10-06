@@ -249,17 +249,17 @@ const GameStoryPage = () => {
       setIsLoading(true);
       const result = await loadCheckpoint(checkpointId);
       
-      // 상태 복원
-      setHearts(Math.floor(result.hp / 33.33));
-      setMental(Math.floor(result.energy / 33.33));
-      setGold(result.gold);
-      
-      // 노드 로드
-      const node = await getStoryNode(result.nodeId);
-      setCurrentNode(node);
+      // 노드 정보가 응답에 포함되어 있으면 바로 사용
+      if (result.node) {
+        setCurrentNode(result.node);
+      } else {
+        // 없으면 다시 조회 (fallback)
+        const node = await getStoryNode(result.nodeId);
+        setCurrentNode(node);
+      }
       
       setShowInventory(false);
-      showToast('체크포인트를 불러왔습니다!');
+      showToast('체크포인트로 이동했습니다!');
     } catch (error) {
       console.error('체크포인트 로드 실패:', error);
       showToast('체크포인트 로드에 실패했습니다.');
