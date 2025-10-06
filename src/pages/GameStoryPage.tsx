@@ -83,12 +83,19 @@ const GameStoryPage = () => {
       console.log('스토리 노드:', node);
       setCurrentNode(node);
       
-      // 초기 상태 설정 (DB의 실제 데이터 사용)
-      const userHp = user.hp || 100;
-      const userEnergy = user.energy || 100;
-      setHearts(Math.floor(userHp / 33.33)); // HP를 하트 개수로 변환
-      setMental(Math.floor(userEnergy / 33.33)); // 에너지를 정신력 개수로 변환
-      setGold(user.gold || 0);
+      // 초기 상태 설정 (세션 데이터 사용 - 항상 HP 3, Energy 3으로 시작)
+      if (node.session) {
+        setHearts(node.session.hp || 3);
+        setMental(node.session.energy || 3);
+        setGold(node.session.gold || 0);
+        console.log('세션 데이터 로드:', node.session);
+      } else {
+        // 세션 데이터가 없으면 기본값 (조사 시작 시 항상 3)
+        setHearts(3);
+        setMental(3);
+        setGold(user.gold || 0);
+        console.warn('세션 데이터 없음 - 기본값 사용');
+      }
 
       // 남은 조사 기회 가져오기
       const actionPoints = await fetch('http://localhost:5000/api/story/action-point', {
@@ -120,24 +127,30 @@ const GameStoryPage = () => {
       });
       console.log('API 응답:', result);
 
-      // 보상 처리 (delta 기반)
+      // 세션 정보 업데이트 (백엔드에서 계산된 최신 HP/Energy 사용)
+      if (result.session) {
+        setHearts(result.session.hp);
+        setMental(result.session.energy);
+        setGold(result.session.gold);
+        console.log('세션 업데이트:', result.session);
+      }
+
+      // 보상 처리 (delta 기반 - 알림용)
       if (result.delta) {
         if (result.delta.hp) {
-          // HP 변화: ±33 당 하트 1개씩 증감
-          const heartChange = Math.floor(Math.abs(result.delta.hp) / 33);
+          // HP 알림 표시
           if (result.delta.hp > 0) {
-            setHearts(prev => Math.min(3, prev + heartChange));
+            showToast(`체력 +${result.delta.hp}`);
           } else {
-            setHearts(prev => Math.max(0, prev - heartChange));
+            showToast(`체력 ${result.delta.hp}`);
           }
         }
         if (result.delta.energy) {
-          // 정신력 변화: ±33 당 정신력 아이콘 1개씩 증감
-          const mentalChange = Math.floor(Math.abs(result.delta.energy) / 33);
+          // 정신력 알림 표시
           if (result.delta.energy > 0) {
-            setMental(prev => Math.min(3, prev + mentalChange));
+            showToast(`정신력 +${result.delta.energy}`);
           } else {
-            setMental(prev => Math.max(0, prev - mentalChange));
+            showToast(`정신력 ${result.delta.energy}`);
           }
         }
         if (result.delta.gold) {

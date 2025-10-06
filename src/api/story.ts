@@ -36,6 +36,11 @@ export interface StoryNode {
     abilities?: Array<{ abilityId: number }>;
   };
   isEndNode?: boolean;
+  session?: {
+    hp: number;
+    energy: number;
+    gold: number;
+  };
 }
 
 export interface ChoiceResult {
@@ -48,6 +53,11 @@ export interface ChoiceResult {
     abilities?: Array<{ abilityId: number; name: string }>;
   };
   investigation_count?: number;
+  session?: {
+    hp: number;
+    energy: number;
+    gold: number;
+  };
 }
 
 // 액션 포인트 상태 조회
