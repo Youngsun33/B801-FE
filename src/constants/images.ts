@@ -5,7 +5,7 @@ export const IMAGES = {
   
   // 아이콘들
   HEART: 'https://stb801.blob.core.windows.net/images/heart.png',
-  HOME: 'https://stb801.blob.core.windows.net/images/home.png',
+  HOME: 'https://stb801.blob.core.windows.net/images/main.png', // 실제 파일명이 main.png
   MENTAL: 'https://stb801.blob.core.windows.net/images/mental.png',
   MONEY: 'https://stb801.blob.core.windows.net/images/money.png',
   INVENTORY: 'https://stb801.blob.core.windows.net/images/인벤.png',
