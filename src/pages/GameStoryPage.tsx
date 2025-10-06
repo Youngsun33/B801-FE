@@ -123,15 +123,15 @@ const GameStoryPage = () => {
       });
       console.log('API 응답:', result);
 
-      // 세션 정보 업데이트 (백엔드에서 계산된 최신 HP/Energy 사용)
+      // 세션 정보 업데이트 (백엔드에서 계산된 최신 HP/Energy/Gold 사용)
       if (result.session) {
         setHearts(result.session.hp);
         setMental(result.session.energy);
-        setGold(result.session.gold);
+        setGold(result.session.gold); // 최종 골드 값
         console.log('세션 업데이트:', result.session);
       }
 
-      // 보상 처리 (delta 기반 - 알림용)
+      // 보상 처리 (delta 기반 - 알림용만 사용, 실제 상태는 session으로 업데이트됨)
       if (result.delta) {
         if (result.delta.hp) {
           // HP 알림 표시
@@ -151,7 +151,7 @@ const GameStoryPage = () => {
         }
         if (result.delta.gold) {
           const goldChange = result.delta.gold;
-          setGold(prev => Math.max(0, prev + goldChange));
+          // 골드는 session에서 이미 업데이트했으므로 알림만 표시
           if (goldChange !== 0) {
             showToast(`돈 ${goldChange > 0 ? '+' : ''}${goldChange}`);
           }
