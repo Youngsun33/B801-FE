@@ -17,6 +17,6 @@
     ".json": "application/json"
   },
   "globalHeaders": {
-    "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://b801-be.azurewebsites.net;"
+    "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' https://stb801.blob.core.windows.net; connect-src 'self' https://b801-be.azurewebsites.net;"
   }
 }
