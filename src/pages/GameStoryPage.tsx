@@ -24,6 +24,8 @@ const GameStoryPage = () => {
   const [showInventory, setShowInventory] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [remainingChances, setRemainingChances] = useState(3);
+  const [isGameOver, setIsGameOver] = useState(false);
+  const [gameOverMessage, setGameOverMessage] = useState('');
   
   // 인벤토리 데이터
   const [abilities, setAbilities] = useState<UserStoryAbility[]>([]);
@@ -45,18 +47,18 @@ const GameStoryPage = () => {
   useEffect(() => {
     if (currentNode && (hearts <= 0 || mental <= 0)) {
       // 게임 오버 처리
-      const gameOverMessage = hearts <= 0 
+      const message = hearts <= 0 
         ? '생명력이 모두 소진되었습니다.' 
         : '정신력이 모두 소진되었습니다.';
       
-      setError(gameOverMessage);
-      
-      // 3초 후 SEARCH 페이지로 돌아가기
-      setTimeout(() => {
-        navigate('/search');
-      }, 3000);
+      setGameOverMessage(message);
+      setIsGameOver(true);
     }
   }, [hearts, mental, currentNode, navigate]);
+
+  const handleGameOverClick = () => {
+    navigate('/search');
+  };
 
   const initializeGame = async () => {
     if (!user) return;
@@ -576,6 +578,20 @@ const GameStoryPage = () => {
         {toastMessage && (
           <div className="absolute top-20 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-lg z-50 animate-fade-in-out">
             {toastMessage}
+          </div>
+        )}
+
+        {/* 게임 오버 모달 */}
+        {isGameOver && (
+          <div 
+            className="absolute inset-0 bg-black/90 flex items-center justify-center z-50"
+            onClick={handleGameOverClick}
+          >
+            <div className="bg-gray-900 border-2 border-red-500 rounded-2xl p-8 max-w-md w-11/12 text-center">
+              <h2 className="text-red-500 text-2xl font-bold mb-4">게임 오버</h2>
+              <p className="text-white text-lg mb-6">{gameOverMessage}</p>
+              <p className="text-gray-400 text-sm">화면을 터치하여 나가기</p>
+            </div>
           </div>
         )}
       </div>
