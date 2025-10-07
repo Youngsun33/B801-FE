@@ -747,7 +747,7 @@ const UserManagement: React.FC = () => {
           },
           body: JSON.stringify({
             day: editingUser.current_day || 1,
-            count: editingUser.daily_investigation_count[0].count
+            count: editingUser.daily_investigation_count?.[0]?.count || 0
           })
         });
       }
@@ -901,7 +901,7 @@ const UserManagement: React.FC = () => {
               <div className="user-card-investigation">
                 <span>📍 Day {user.current_day}</span>
                 <span>
-                  🔍 조사: {3 - (user.daily_investigation_count[0]?.count || 0)}/3
+                  🔍 조사: {3 - (user.daily_investigation_count?.[0]?.count || 0)}/3
                 </span>
               </div>
               <div className="user-card-checkpoints">
