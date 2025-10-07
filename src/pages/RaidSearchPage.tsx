@@ -133,14 +133,19 @@
 
             if (response.ok) {
                 const result: SearchResult = await response.json();
+                console.log('조사 결과:', result); // 디버깅용
                 // 항상 알림창 표시 (백엔드에서 항상 아이템을 찾도록 수정됨)
                 if (result.found && result.item) {
+                    console.log('아이템 획득:', result.item); // 디버깅용
                     setGainedItems([result.item]);
                     setShowItemAlert(true);
+                    alert(`아이템 획득: ${result.item.name} x${result.item.quantity}`); // 임시 알람
                 } else {
                     // 아이템을 찾지 못한 경우에도 알림창 표시
+                    console.log('아이템 없음'); // 디버깅용
                     setGainedItems([]);
                     setShowItemAlert(true);
+                    alert('아무것도 찾지 못했습니다'); // 임시 알람
                 }
                 setRemainingSearches(result.remainingSearches);
                 await loadUserItems(); // 아이템 목록 새로고침
