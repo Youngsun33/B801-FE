@@ -1157,7 +1157,11 @@ const RaidManagement: React.FC = () => {
       });
       if (response.ok) {
         const data = await response.json();
-        setUserItems(data);
+        // 배열인지 확인하고 안전하게 설정
+        setUserItems(Array.isArray(data) ? data : []);
+      } else {
+        // 에러 시 빈 배열로 설정
+        setUserItems([]);
       }
     } catch (error) {
       console.error('유저 아이템 로드 실패:', error);
