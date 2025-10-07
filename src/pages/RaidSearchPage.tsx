@@ -27,7 +27,6 @@
         // 모달 상태
          const [showBackModal, setShowBackModal] = useState(false);
          const [showInventory, setShowInventory] = useState(false);
-         const [showItemAlert, setShowItemAlert] = useState(false);
          const [gainedItems, setGainedItems] = useState<{ name: string; quantity: number }[]>([]);
          const [showToast, setShowToast] = useState(false);
          const [toastMessage, setToastMessage] = useState('');
@@ -178,13 +177,11 @@
         const handleCancel = () => {
             setSelectedArea(null);
             setSelectedAreaName('');
-            setShowItemAlert(false); // 아이템 알림창 닫기
             setGainedItems([]); // 획득 아이템 초기화
         };
 
         // 나가기 확인
         const handleBackConfirm = () => {
-            setShowItemAlert(false); // 아이템 알림창 닫기
             setGainedItems([]); // 획득 아이템 초기화
             navigate('/');
         };
@@ -555,48 +552,6 @@
                 </>
             )}
 
-            {/* 아이템 획득 알림 모달 */}
-            {showItemAlert && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-                <div className="bg-white rounded-2xl p-6 max-w-sm w-full">
-                    <div className="text-center">
-                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">조사 완료!</h3>
-                    
-                    <div className="mb-6">
-                        <p className="text-gray-600 mb-3">획득한 아이템:</p>
-                        <div className="bg-gray-50 rounded-lg p-3">
-                        {gainedItems.length > 0 ? (
-                            gainedItems.map((item, index) => (
-                            <div key={index} className="flex justify-between items-center">
-                                <span className="text-green-600 font-medium">{item.name}</span>
-                                <span className="text-green-600 font-bold">x{item.quantity}</span>
-                            </div>
-                            ))
-                        ) : (
-                            <p className="text-gray-500">아무것도 찾지 못했습니다</p>
-                        )}
-                        </div>
-                    </div>
-                    
-                    <button
-                        onClick={() => {
-                            setShowItemAlert(false);
-                            setGainedItems([]); // 획득 아이템 초기화
-                        }}
-                        className="w-full py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors"
-                    >
-                        확인
-                    </button>
-                    </div>
-                </div>
-                </div>
-            )}
 
             {/* 토스트 알람 */}
             {showToast && (
