@@ -4,6 +4,7 @@ import HomePage from '@/pages/HomePage';
 import LoginPage from '@/pages/LoginPage';
 import RegisterPage from '@/pages/RegisterPage';
 import SearchPage from '@/pages/SearchPage';
+import MyPage from '@/pages/MyPage';
 import GameStoryPage from '@/pages/GameStoryPage';
 import AdminPage from '@/pages/AdminPage';
 
@@ -25,6 +26,7 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/search" element={<SearchPage />} />
+              <Route path="/my" element={<MyPage />} />
               {/* 추가 라우트들은 여기에 */}
             </Routes>
           </MobileLayout>
