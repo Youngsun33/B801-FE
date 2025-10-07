@@ -160,7 +160,7 @@
 
         // 나가기 확인
         const handleBackConfirm = () => {
-            navigate('/search');
+            navigate('/');
         };
 
          // 지도 이미지 크기 측정 및 스케일 계산
@@ -462,7 +462,7 @@
                     <div className="text-center">
                     <div className="text-lg font-bold text-gray-900 mb-2">나가시겠습니까?</div>
                     <div className="text-sm text-gray-600 mb-6">
-                        레이드서치를 종료하고 이전 페이지로 돌아갑니다.
+                        레이드서치를 종료하고 홈으로 돌아갑니다.
                     </div>
                     <div className="flex gap-3">
                         <button
