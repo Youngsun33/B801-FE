@@ -50,14 +50,23 @@
         // 유저 아이템 목록 로드
         const loadUserItems = async () => {
             try {
+            const token = localStorage.getItem('accessToken');
+            console.log('Token:', token); // 디버깅용
+            
             const response = await fetch('https://b801-be.azurewebsites.net/api/raid-search/user-items', {
                 headers: {
-                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                'Authorization': `Bearer ${token}`
                 }
             });
+            
+            console.log('Response status:', response.status); // 디버깅용
+            
             if (response.ok) {
                 const data = await response.json();
                 setUserItems(data);
+            } else {
+                const errorData = await response.json();
+                console.error('API Error:', errorData);
             }
             } catch (error) {
             console.error('유저 아이템 로드 실패:', error);
@@ -67,14 +76,23 @@
         // 남은 검색 횟수 로드
         const loadRemainingSearches = async () => {
             try {
+            const token = localStorage.getItem('accessToken');
+            console.log('Token for remaining:', token); // 디버깅용
+            
             const response = await fetch('https://b801-be.azurewebsites.net/api/raid-search/remaining', {
                 headers: {
-                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                'Authorization': `Bearer ${token}`
                 }
             });
+            
+            console.log('Remaining response status:', response.status); // 디버깅용
+            
             if (response.ok) {
                 const data = await response.json();
                 setRemainingSearches(data.remainingSearches);
+            } else {
+                const errorData = await response.json();
+                console.error('Remaining API Error:', errorData);
             }
             } catch (error) {
             console.error('검색 횟수 로드 실패:', error);

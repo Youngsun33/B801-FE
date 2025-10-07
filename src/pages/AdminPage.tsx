@@ -14,6 +14,7 @@ const AdminPage: React.FC = () => {
     { path: '/admin', label: '대시보드', icon: '📊' },
     { path: '/admin/story-editor', label: '스토리 편집기', icon: '📝' },
     { path: '/admin/users', label: '사용자 관리', icon: '👥' },
+    { path: '/admin/raid-management', label: '레이드 조사 관리', icon: '🗺️' },
     { path: '/admin/analytics', label: '분석', icon: '📈' },
   ];
 
@@ -56,6 +57,7 @@ const AdminPage: React.FC = () => {
             <Route path="/" element={<AdminDashboard />} />
             <Route path="/story-editor" element={<StoryEditor />} />
             <Route path="/users" element={<UserManagement />} />
+            <Route path="/raid-management" element={<RaidManagement />} />
             <Route path="/analytics" element={<Analytics />} />
           </Routes>
         </div>
@@ -1109,6 +1111,284 @@ const UserManagement: React.FC = () => {
               ))}
             </div>
             <button className="close-modal-btn" onClick={() => setShowAddAbilityModal(false)}>닫기</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// 레이드 관리 컴포넌트
+const RaidManagement: React.FC = () => {
+  const [users, setUsers] = useState<any[]>([]);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [userItems, setUserItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [showAddItemModal, setShowAddItemModal] = useState(false);
+  const [newItem, setNewItem] = useState({ name: '', quantity: 1 });
+  const [editingItem, setEditingItem] = useState<any>(null);
+  const [editQuantity, setEditQuantity] = useState(0);
+
+  // 유저 목록 로드
+  const loadUsers = async () => {
+    try {
+      const response = await fetch('https://b801-be.azurewebsites.net/api/admin/users', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setUsers(data);
+      }
+    } catch (error) {
+      console.error('유저 목록 로드 실패:', error);
+    }
+  };
+
+  // 선택된 유저의 레이드 아이템 로드
+  const loadUserItems = async (userId: number) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`https://b801-be.azurewebsites.net/api/raid-search/admin/user-items/${userId}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setUserItems(data);
+      }
+    } catch (error) {
+      console.error('유저 아이템 로드 실패:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 아이템 수량 수정
+  const handleUpdateQuantity = async (itemName: string, newQuantity: number) => {
+    try {
+      const response = await fetch(`https://b801-be.azurewebsites.net/api/raid-search/admin/user-items/${selectedUser.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        body: JSON.stringify({
+          item_name: itemName,
+          quantity: newQuantity
+        })
+      });
+
+      if (response.ok) {
+        await loadUserItems(selectedUser.id);
+        setEditingItem(null);
+      } else {
+        alert('수량 수정에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('수량 수정 실패:', error);
+      alert('수량 수정 중 오류가 발생했습니다.');
+    }
+  };
+
+  // 아이템 삭제
+  const handleDeleteItem = async (itemName: string) => {
+    if (!confirm(`${itemName}을(를) 삭제하시겠습니까?`)) return;
+
+    try {
+      const response = await fetch(`https://b801-be.azurewebsites.net/api/raid-search/admin/user-items/${selectedUser.id}/${encodeURIComponent(itemName)}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      });
+
+      if (response.ok) {
+        await loadUserItems(selectedUser.id);
+      } else {
+        alert('아이템 삭제에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('아이템 삭제 실패:', error);
+      alert('아이템 삭제 중 오류가 발생했습니다.');
+    }
+  };
+
+  // 아이템 추가
+  const handleAddItem = async () => {
+    if (!newItem.name.trim() || newItem.quantity <= 0) {
+      alert('아이템명과 수량을 올바르게 입력해주세요.');
+      return;
+    }
+
+    try {
+      const response = await fetch(`https://b801-be.azurewebsites.net/api/raid-search/admin/user-items/${selectedUser.id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        },
+        body: JSON.stringify(newItem)
+      });
+
+      if (response.ok) {
+        await loadUserItems(selectedUser.id);
+        setShowAddItemModal(false);
+        setNewItem({ name: '', quantity: 1 });
+      } else {
+        alert('아이템 추가에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('아이템 추가 실패:', error);
+      alert('아이템 추가 중 오류가 발생했습니다.');
+    }
+  };
+
+  React.useEffect(() => {
+    loadUsers();
+  }, []);
+
+  React.useEffect(() => {
+    if (selectedUser) {
+      loadUserItems(selectedUser.id);
+    }
+  }, [selectedUser]);
+
+  return (
+    <div className="raid-management">
+      <h2>레이드 조사 관리</h2>
+      
+      <div className="raid-management-content">
+        {/* 유저 목록 */}
+        <div className="user-list-section">
+          <h3>유저 목록</h3>
+          <div className="user-list">
+            {users.map((user) => (
+              <div
+                key={user.id}
+                className={`user-item ${selectedUser?.id === user.id ? 'selected' : ''}`}
+                onClick={() => setSelectedUser(user)}
+              >
+                <div className="user-info">
+                  <strong>{user.username}</strong>
+                  <span className="user-id">ID: {user.id}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 선택된 유저의 아이템 관리 */}
+        {selectedUser && (
+          <div className="item-management-section">
+            <div className="section-header">
+              <h3>{selectedUser.username}의 레이드 아이템</h3>
+              <button 
+                className="add-item-btn"
+                onClick={() => setShowAddItemModal(true)}
+              >
+                아이템 추가
+              </button>
+            </div>
+
+            {loading ? (
+              <div className="loading">로딩 중...</div>
+            ) : (
+              <div className="item-list">
+                {userItems.length === 0 ? (
+                  <div className="no-items">아이템이 없습니다.</div>
+                ) : (
+                  userItems.map((item, index) => (
+                    <div key={index} className="item-row">
+                      <div className="item-info">
+                        <span className="item-name">{item.item_name}</span>
+                        <span className="item-date">
+                          {new Date(item.obtained_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                      
+                      <div className="item-actions">
+                        {editingItem?.item_name === item.item_name ? (
+                          <div className="edit-quantity">
+                            <input
+                              type="number"
+                              min="0"
+                              value={editQuantity}
+                              onChange={(e) => setEditQuantity(parseInt(e.target.value) || 0)}
+                              className="quantity-input"
+                            />
+                            <button
+                              onClick={() => handleUpdateQuantity(item.item_name, editQuantity)}
+                              className="save-btn"
+                            >
+                              저장
+                            </button>
+                            <button
+                              onClick={() => setEditingItem(null)}
+                              className="cancel-btn"
+                            >
+                              취소
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="item-controls">
+                            <span className="quantity">수량: {item.quantity}</span>
+                            <button
+                              onClick={() => {
+                                setEditingItem(item);
+                                setEditQuantity(item.quantity);
+                              }}
+                              className="edit-btn"
+                            >
+                              수정
+                            </button>
+                            <button
+                              onClick={() => handleDeleteItem(item.item_name)}
+                              className="delete-btn"
+                            >
+                              삭제
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* 아이템 추가 모달 */}
+      {showAddItemModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>아이템 추가</h3>
+            <div className="form-group">
+              <label>아이템명:</label>
+              <input
+                type="text"
+                value={newItem.name}
+                onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+                placeholder="아이템명을 입력하세요"
+              />
+            </div>
+            <div className="form-group">
+              <label>수량:</label>
+              <input
+                type="number"
+                min="1"
+                value={newItem.quantity}
+                onChange={(e) => setNewItem({ ...newItem, quantity: parseInt(e.target.value) || 1 })}
+              />
+            </div>
+            <div className="modal-actions">
+              <button onClick={handleAddItem} className="confirm-btn">추가</button>
+              <button onClick={() => setShowAddItemModal(false)} className="cancel-btn">취소</button>
+            </div>
           </div>
         </div>
       )}
