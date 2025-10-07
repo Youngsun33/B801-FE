@@ -1125,10 +1125,6 @@ const RaidManagement: React.FC = () => {
   const [userItems, setUserItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [itemsLoading, setItemsLoading] = useState(false);
-  const [showAddItemModal, setShowAddItemModal] = useState(false);
-  const [newItem, setNewItem] = useState({ name: '', quantity: 1 });
-  const [editingItem, setEditingItem] = useState<any>(null);
-  const [editQuantity, setEditQuantity] = useState(0);
 
   // 유저 목록 로드
   const loadUsers = async () => {
@@ -1176,97 +1172,6 @@ const RaidManagement: React.FC = () => {
     }
   };
 
-  // 아이템 추가
-  const handleAddItem = async () => {
-    if (!selectedUser || !newItem.name.trim()) {
-      alert('아이템 이름을 입력해주세요.');
-      return;
-    }
-    
-    try {
-      const response = await fetch(`https://b801-be.azurewebsites.net/api/raid-search/admin/user-items/${selectedUser.id}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-        },
-        body: JSON.stringify({
-          itemName: newItem.name,
-          quantity: newItem.quantity
-        })
-      });
-      
-      if (response.ok) {
-        await loadUserItems(selectedUser.id);
-        setNewItem({ name: '', quantity: 1 });
-        setShowAddItemModal(false);
-        alert('아이템이 추가되었습니다.');
-      } else {
-        const error = await response.json();
-        alert(error.message || '아이템 추가에 실패했습니다.');
-      }
-    } catch (error) {
-      console.error('아이템 추가 실패:', error);
-      alert('아이템 추가 중 오류가 발생했습니다.');
-    }
-  };
-
-  // 아이템 수량 수정
-  const handleUpdateQuantity = async (itemName: string, newQuantity: number) => {
-    if (!selectedUser || newQuantity < 0) {
-      alert('올바른 수량을 입력해주세요.');
-      return;
-    }
-    
-    try {
-      const response = await fetch(`https://b801-be.azurewebsites.net/api/raid-search/admin/user-items/${selectedUser.id}/${encodeURIComponent(itemName)}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-        },
-        body: JSON.stringify({ quantity: newQuantity })
-      });
-      
-      if (response.ok) {
-        await loadUserItems(selectedUser.id);
-        alert('수량이 수정되었습니다.');
-        setEditingItem(null);
-        setEditQuantity(0);
-      } else {
-        const error = await response.json();
-        alert(error.message || '수량 수정에 실패했습니다.');
-      }
-    } catch (error) {
-      console.error('수량 수정 실패:', error);
-      alert('수량 수정 중 오류가 발생했습니다.');
-    }
-  };
-
-  // 아이템 삭제
-  const handleDeleteItem = async (itemName: string) => {
-    if (!selectedUser || !confirm(`${itemName}을(를) 삭제하시겠습니까?`)) return;
-    
-    try {
-      const response = await fetch(`https://b801-be.azurewebsites.net/api/raid-search/admin/user-items/${selectedUser.id}/${encodeURIComponent(itemName)}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-        }
-      });
-      
-      if (response.ok) {
-        await loadUserItems(selectedUser.id);
-        alert('아이템이 삭제되었습니다.');
-      } else {
-        const error = await response.json();
-        alert(error.message || '아이템 삭제에 실패했습니다.');
-      }
-    } catch (error) {
-      console.error('아이템 삭제 실패:', error);
-      alert('아이템 삭제 중 오류가 발생했습니다.');
-    }
-  };
 
   useEffect(() => {
     loadUsers();
@@ -1282,7 +1187,7 @@ const RaidManagement: React.FC = () => {
     <div className="raid-management">
       <div className="page-header">
         <h2>🗺️ 레이드 조사 관리</h2>
-        <p>유저들의 레이드 아이템을 관리할 수 있습니다.</p>
+        <p>유저들이 가지고 있는 레이드 아이템을 확인할 수 있습니다.</p>
       </div>
       
       <div className="raid-management-content">
@@ -1331,12 +1236,6 @@ const RaidManagement: React.FC = () => {
           <div className="user-items-section">
             <div className="section-header">
               <h3>🎒 {selectedUser.username}의 레이드 아이템</h3>
-              <button 
-                className="add-item-btn"
-                onClick={() => setShowAddItemModal(true)}
-              >
-                + 아이템 추가
-              </button>
             </div>
             
             {itemsLoading ? (
@@ -1355,53 +1254,6 @@ const RaidManagement: React.FC = () => {
                           {new Date(item.obtained_at).toLocaleDateString()}
                         </span>
                       </div>
-                      <div className="item-actions">
-                        {editingItem?.item_name === item.item_name ? (
-                          <>
-                            <input
-                              type="number"
-                              min="0"
-                              value={editQuantity}
-                              onChange={(e) => setEditQuantity(parseInt(e.target.value) || 0)}
-                              placeholder="새 수량"
-                              className="quantity-input"
-                            />
-                            <button
-                              onClick={() => handleUpdateQuantity(item.item_name, editQuantity)}
-                              className="save-btn"
-                            >
-                              저장
-                            </button>
-                            <button
-                              onClick={() => {
-                                setEditingItem(null);
-                                setEditQuantity(0);
-                              }}
-                              className="cancel-btn"
-                            >
-                              취소
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <button
-                              onClick={() => {
-                                setEditingItem(item);
-                                setEditQuantity(item.quantity);
-                              }}
-                              className="edit-btn"
-                            >
-                              수정
-                            </button>
-                            <button
-                              onClick={() => handleDeleteItem(item.item_name)}
-                              className="delete-btn"
-                            >
-                              삭제
-                            </button>
-                          </>
-                        )}
-                      </div>
                     </div>
                   ))
                 )}
@@ -1411,48 +1263,6 @@ const RaidManagement: React.FC = () => {
         )}
       </div>
 
-      {/* 아이템 추가 모달 */}
-      {showAddItemModal && (
-        <div className="modal-overlay" onClick={() => setShowAddItemModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>🎒 아이템 추가</h3>
-              <button 
-                className="close-btn"
-                onClick={() => setShowAddItemModal(false)}
-              >
-                ×
-              </button>
-            </div>
-            <div className="modal-body">
-              <div className="form-group">
-                <label>아이템 이름:</label>
-                <input
-                  type="text"
-                  value={newItem.name}
-                  onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-                  placeholder="아이템 이름을 입력하세요"
-                  className="form-input"
-                />
-              </div>
-              <div className="form-group">
-                <label>수량:</label>
-                <input
-                  type="number"
-                  min="1"
-                  value={newItem.quantity}
-                  onChange={(e) => setNewItem({ ...newItem, quantity: parseInt(e.target.value) || 1 })}
-                  className="form-input"
-                />
-              </div>
-            </div>
-            <div className="modal-footer">
-              <button onClick={handleAddItem} className="confirm-btn">추가</button>
-              <button onClick={() => setShowAddItemModal(false)} className="cancel-btn">취소</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
