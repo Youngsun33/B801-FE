@@ -181,7 +181,30 @@ const GameStoryPage = () => {
             console.error('Failed to refresh story abilities:', err);
           }
         }
-        // 체크포인트 관련 응답은 현재 타입에 없음. 이후 백엔드 스펙 확정 시 처리
+        if (result.delta.checkpoint) {
+          // 체크포인트 도달 알림 표시
+          showToast(`💾 ${result.delta.checkpoint.message}`);
+          
+          // 체크포인트 인벤토리 새로고침
+          try {
+            const checkpointData = await getUserCheckpoints();
+            setCheckpoints(checkpointData);
+          } catch (err) {
+            console.error('Failed to refresh checkpoints:', err);
+          }
+        }
+        if (result.delta.ending) {
+          // 엔딩 도달 알림 표시
+          showToast(`🏆 ${result.delta.ending.message}`);
+          
+          // 체크포인트 인벤토리 새로고침 (엔딩에서도 체크포인트 저장됨)
+          try {
+            const checkpointData = await getUserCheckpoints();
+            setCheckpoints(checkpointData);
+          } catch (err) {
+            console.error('Failed to refresh checkpoints:', err);
+          }
+        }
       }
 
       // 다음 노드 로드

@@ -51,6 +51,16 @@ export interface ChoiceResult {
     gold?: number;
     items?: Array<{ itemId: number; name: string; qty: number }>;
     abilities?: Array<{ abilityId: number; name: string }>;
+    checkpoint?: {
+      title: string;
+      message: string;
+    };
+    ending?: {
+      title: string;
+      message: string;
+    };
+    sessionEnded?: boolean;
+    endReason?: string;
   };
   investigation_count?: number;
   session?: {
