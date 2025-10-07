@@ -26,6 +26,7 @@ const Header = ({ showMenu = true }: HeaderProps) => {
 
   const commonMenuItems = [
     { label: 'HOME', path: '/' },
+    { label: 'MY', path: '/my' },
   ];
 
   const authenticatedMenuItems = [
