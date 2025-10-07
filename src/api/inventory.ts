@@ -35,6 +35,42 @@ export interface Checkpoint {
   savedAt: string;
 }
 
+// GameStoryPage에서 사용하는 타입들
+export interface UserStoryAbility {
+  userAbilityId: number;
+  isActive: boolean;
+  obtainedAt: string;
+  ability: {
+    id: number;
+    name: string;
+    description: string;
+    effect_type: string;
+    effect_value: number;
+  };
+}
+
+export interface UserStoryItem {
+  inventoryId: number;
+  quantity: number;
+  item: {
+    id: number;
+    name: string;
+    description: string;
+    type: string;
+  };
+}
+
+export interface UserCheckpoint {
+  id: number;
+  nodeId: number;
+  title: string;
+  description: string;
+  hp: number;
+  energy: number;
+  gold: number;
+  savedAt: string;
+}
+
 // 인벤토리 조회
 export const getInventory = async (type?: 'story' | 'raid'): Promise<{ inventory: InventoryItem[] }> => {
   const params = type ? { type } : {};
@@ -51,5 +87,21 @@ export const getUserAbilities = async (): Promise<{ abilities: UserAbility[] }> 
 // 체크포인트 조회
 export const getUserCheckpoints = async (): Promise<{ checkpoints: Checkpoint[] }> => {
   const response = await apiClient.get('/checkpoints');
+  return response.data;
+};
+
+// GameStoryPage에서 사용하는 함수들
+export const getUserStoryAbilities = async (): Promise<{ abilities: UserStoryAbility[] }> => {
+  const response = await apiClient.get('/abilities');
+  return response.data;
+};
+
+export const getUserStoryItems = async (): Promise<{ inventory: UserStoryItem[] }> => {
+  const response = await apiClient.get('/inventory', { params: { type: 'story' } });
+  return response.data;
+};
+
+export const loadCheckpoint = async (checkpointId: number): Promise<any> => {
+  const response = await apiClient.post('/checkpoints/load', { checkpointId });
   return response.data;
 };
