@@ -905,7 +905,7 @@ const UserManagement: React.FC = () => {
                 </span>
               </div>
               <div className="user-card-checkpoints">
-                <span>💾 체크포인트: {user.user_checkpoints.length}개</span>
+                <span>💾 체크포인트: {(user.user_checkpoints?.length || 0)}개</span>
               </div>
             </div>
           ))}
