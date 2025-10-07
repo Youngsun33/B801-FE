@@ -7,6 +7,7 @@ import SearchPage from '@/pages/SearchPage';
 import MyPage from '@/pages/MyPage';
 import GameStoryPage from '@/pages/GameStoryPage';
 import AdminPage from '@/pages/AdminPage';
+import RaidSearchPage from '@/pages/RaidSearchPage';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/search" element={<SearchPage />} />
+              <Route path="/raidsearch" element={<RaidSearchPage />} />
               <Route path="/my" element={<MyPage />} />
               {/* 추가 라우트들은 여기에 */}
             </Routes>

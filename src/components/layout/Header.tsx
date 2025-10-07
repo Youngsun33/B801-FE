@@ -55,6 +55,7 @@ const Header = ({ showMenu = true }: HeaderProps) => {
 
   const authenticatedMenuItems = [
     { label: 'SEARCH', path: '/search' },
+    { label: 'RAIDSEARCH', path: '/raidsearch' },
   ];
 
   const menuItems = isAuthenticated
