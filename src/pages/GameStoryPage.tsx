@@ -188,7 +188,7 @@ const GameStoryPage = () => {
           // 체크포인트 인벤토리 새로고침
           try {
             const checkpointData = await getUserCheckpoints();
-            setCheckpoints(checkpointData);
+            setCheckpoints(checkpointData.checkpoints);
           } catch (err) {
             console.error('Failed to refresh checkpoints:', err);
           }
@@ -200,7 +200,7 @@ const GameStoryPage = () => {
           // 체크포인트 인벤토리 새로고침 (엔딩에서도 체크포인트 저장됨)
           try {
             const checkpointData = await getUserCheckpoints();
-            setCheckpoints(checkpointData);
+            setCheckpoints(checkpointData.checkpoints);
           } catch (err) {
             console.error('Failed to refresh checkpoints:', err);
           }

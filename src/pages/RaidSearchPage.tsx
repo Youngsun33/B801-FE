@@ -9,7 +9,8 @@
 
         interface SearchResult {
         success: boolean;
-        items: { name: string; quantity: number }[];
+        found: boolean;
+        item: { name: string; quantity: number } | null;
         remainingSearches: number;
         }
 
@@ -74,13 +75,22 @@
         // 남은 검색 횟수 로드
         const loadRemainingSearches = async () => {
             try {
-            const userId = user?.id;
-            if (!userId) return;
+            const response = await fetch('https://b801-be.azurewebsites.net/api/raid-search/remaining', {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                }
+            });
             
-            // 임시로 25로 고정 (나중에 실제 API로 변경)
-            setRemainingSearches(25);
+            if (response.ok) {
+                const data = await response.json();
+                setRemainingSearches(data.remainingSearches || 0);
+            } else {
+                console.error('검색 횟수 로드 실패:', response.status);
+                setRemainingSearches(0);
+            }
             } catch (error) {
             console.error('검색 횟수 로드 실패:', error);
+            setRemainingSearches(0);
             }
         };
 
@@ -123,9 +133,12 @@
 
             if (response.ok) {
                 const result: SearchResult = await response.json();
-                setGainedItems(result.items);
+                // 아이템을 찾았으면 gainedItems에 추가
+                if (result.found && result.item) {
+                    setGainedItems([result.item]);
+                    setShowItemAlert(true);
+                }
                 setRemainingSearches(result.remainingSearches);
-                setShowItemAlert(true);
                 await loadUserItems(); // 아이템 목록 새로고침
             } else {
                 const error = await response.json();
