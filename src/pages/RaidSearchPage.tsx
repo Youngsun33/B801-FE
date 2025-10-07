@@ -28,8 +28,6 @@
          const [showBackModal, setShowBackModal] = useState(false);
          const [showInventory, setShowInventory] = useState(false);
          const [gainedItems, setGainedItems] = useState<{ name: string; quantity: number }[]>([]);
-         const [showToast, setShowToast] = useState(false);
-         const [toastMessage, setToastMessage] = useState('');
          
          // 지도 이미지 크기 측정을 위한 ref
          const mapImageRef = useRef<HTMLImageElement>(null);
@@ -138,36 +136,24 @@
                 // 항상 알림창 표시 (백엔드에서 항상 아이템을 찾도록 수정됨)
                 if (result.found && result.item) {
                     console.log('아이템 획득:', result.item); // 디버깅용
-                    // 토스트 알람 즉시 표시
-                    setToastMessage(`🎉 ${result.item.name} x${result.item.quantity} 획득!`);
-                    setShowToast(true);
-                    setTimeout(() => setShowToast(false), 3000); // 3초 후 자동 사라짐
-                    
-                    // 모달은 표시하지 않음 (토스트로 대체)
+                    // alert로 즉시 표시
+                    alert(`🎉 ${result.item.name} x${result.item.quantity} 획득!`);
                     setGainedItems([result.item]);
                 } else {
-                    // 아이템을 찾지 못한 경우에도 토스트 알람 표시
+                    // 아이템을 찾지 못한 경우에도 alert 표시
                     console.log('아이템 없음'); // 디버깅용
-                    setToastMessage('🔍 아무것도 찾지 못했습니다');
-                    setShowToast(true);
-                    setTimeout(() => setShowToast(false), 3000); // 3초 후 자동 사라짐
-                    
-                    // 모달은 표시하지 않음 (토스트로 대체)
+                    alert('🔍 아무것도 찾지 못했습니다');
                     setGainedItems([]);
                 }
                 setRemainingSearches(result.remainingSearches);
                 await loadUserItems(); // 아이템 목록 새로고침
             } else {
                 const error = await response.json();
-                setToastMessage(`❌ ${error.message || '조사에 실패했습니다.'}`);
-                setShowToast(true);
-                setTimeout(() => setShowToast(false), 3000);
+                alert(`❌ ${error.message || '조사에 실패했습니다.'}`);
             }
             } catch (error) {
             console.error('조사 실패:', error);
-            setToastMessage('❌ 조사 중 오류가 발생했습니다.');
-            setShowToast(true);
-            setTimeout(() => setShowToast(false), 3000);
+            alert('❌ 조사 중 오류가 발생했습니다.');
             } finally {
             setIsSearching(false);
             }
@@ -553,16 +539,6 @@
             )}
 
 
-            {/* 토스트 알람 */}
-            {showToast && (
-                <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
-                    <div className="bg-black text-white px-6 py-3 rounded-full shadow-lg animate-bounce">
-                        <div className="flex items-center space-x-2">
-                            <span className="font-medium">{toastMessage}</span>
-                        </div>
-                    </div>
-                </div>
-            )}
             </div>
         );
         };
