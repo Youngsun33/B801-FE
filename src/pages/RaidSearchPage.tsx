@@ -295,12 +295,10 @@
                 </button>
             </div>
 
-            {/* 지도 영역 */}
-            <div className={`px-4 transition-all duration-300 ${showInventory ? 'pt-16 pb-8' : 'flex-1 flex items-center justify-center pt-16 pb-16'}`}>
-                <div className="max-w-lg mx-auto">
-                <div className="bg-white rounded-lg p-4 ">
-                    {/* 지도 이미지 */}
-                    <div className="relative">
+             {/* 지도 영역 */}
+             <div className={`transition-all duration-300 ${showInventory ? 'pt-16 pb-8' : 'flex-1 flex items-center justify-center pt-16 pb-16'}`}>
+                 {/* 지도 이미지 */}
+                 <div className="relative w-full">
                      <img
                          ref={mapImageRef}
                          src="https://stb801.blob.core.windows.net/images/지도.png"
@@ -342,7 +340,7 @@
                          <div className="absolute text-center pointer-events-auto" style={{ top: `${((63 * 1.327) - 20) * mapScale.y}px`, left: `${((189 * 1.325) - 30) * mapScale.x}px` }}>
                         <button 
                             onClick={() => handleMapAreaClick('등산로')}
-                            className="text-black text-sm font-medium hover:text-gray-600 transition-colors cursor-pointer"
+                            className="bg-white/90 text-black px-2 py-1 rounded text-sm font-medium hover:bg-white transition-colors cursor-pointer"
                         >
                             등산로
                         </button>
@@ -352,7 +350,7 @@
                          <div className="absolute text-center pointer-events-auto" style={{ top: `${((85 * 1.327) - 20) * mapScale.y}px`, left: `${((136 * 1.325) - 30) * mapScale.x}px` }}>
                         <button 
                             onClick={() => handleMapAreaClick('청계천')}
-                            className="text-black text-sm font-medium hover:text-gray-600 transition-colors cursor-pointer"
+                            className="bg-white/90 text-black px-2 py-1 rounded text-sm font-medium hover:bg-white transition-colors cursor-pointer"
                         >
                             청계천
                         </button>
@@ -362,7 +360,7 @@
                          <div className="absolute text-center pointer-events-auto" style={{ top: `${((132 * 1.327) - 20) * mapScale.y}px`, left: `${((161 * 1.325) - 30) * mapScale.x}px` }}>
                         <button 
                             onClick={() => handleMapAreaClick('번화가')}
-                            className="text-black text-sm font-medium hover:text-gray-600 transition-colors cursor-pointer"
+                            className="bg-white/90 text-black px-2 py-1 rounded text-sm font-medium hover:bg-white transition-colors cursor-pointer"
                         >
                             번화가
                         </button>
@@ -372,7 +370,7 @@
                          <div className="absolute text-center pointer-events-auto" style={{ top: `${((89 * 1.327) - 20) * mapScale.y}px`, left: `${((233 * 1.325) - 30) * mapScale.x}px` }}>
                         <button 
                             onClick={() => handleMapAreaClick('터널')}
-                            className="text-black text-sm font-medium hover:text-gray-600 transition-colors cursor-pointer"
+                            className="bg-white/90 text-black px-2 py-1 rounded text-sm font-medium hover:bg-white transition-colors cursor-pointer"
                         >
                             터널
                         </button>
@@ -382,7 +380,7 @@
                          <div className="absolute text-center pointer-events-auto" style={{ top: `${((116 * 1.327) - 20) * mapScale.y}px`, left: `${((53 * 1.325) - 30) * mapScale.x}px` }}>
                         <button 
                             onClick={() => handleMapAreaClick('골목길')}
-                            className="text-black text-sm font-medium hover:text-gray-600 transition-colors cursor-pointer"
+                            className="bg-white/90 text-black px-2 py-1 rounded text-sm font-medium hover:bg-white transition-colors cursor-pointer"
                         >
                             골목길
                         </button>
@@ -392,7 +390,7 @@
                          <div className="absolute text-center pointer-events-auto" style={{ top: `${((123 * 1.327) - 20) * mapScale.y}px`, left: `${((233 * 1.325) - 30) * mapScale.x}px` }}>
                         <button 
                             onClick={() => handleMapAreaClick('슬럼가')}
-                            className="text-black text-sm font-medium hover:text-gray-600 transition-colors cursor-pointer"
+                            className="bg-white/90 text-black px-2 py-1 rounded text-sm font-medium hover:bg-white transition-colors cursor-pointer"
                         >
                             슬럼가
                         </button>
@@ -402,7 +400,7 @@
                          <div className="absolute text-center pointer-events-auto" style={{ top: `${((172 * 1.327) - 20) * mapScale.y}px`, left: `${((120 * 1.325) - 30) * mapScale.x}px` }}>
                         <button 
                             onClick={() => handleMapAreaClick('학교')}
-                            className="text-black text-sm font-medium hover:text-gray-600 transition-colors cursor-pointer"
+                            className="bg-white/90 text-black px-2 py-1 rounded text-sm font-medium hover:bg-white transition-colors cursor-pointer"
                         >
                             학교
                         </button>
@@ -412,7 +410,7 @@
                          <div className="absolute text-center pointer-events-auto" style={{ top: `${((172 * 1.327) - 20) * mapScale.y}px`, left: `${((179 * 1.325) - 30) * mapScale.x}px` }}>
                         <button 
                             onClick={() => handleMapAreaClick('소방서')}
-                            className="text-black text-sm font-medium hover:text-gray-600 transition-colors cursor-pointer"
+                            className="bg-white/90 text-black px-2 py-1 rounded text-sm font-medium hover:bg-white transition-colors cursor-pointer"
                         >
                             소방서
                         </button>
@@ -422,7 +420,7 @@
                          <div className="absolute text-center pointer-events-auto" style={{ top: `${((163 * 1.327) - 20) * mapScale.y}px`, left: `${((249 * 1.325) - 30) * mapScale.x}px` }}>
                         <button 
                             onClick={() => handleMapAreaClick('고급주택가')}
-                            className="text-black text-sm font-medium hover:text-gray-600 transition-colors cursor-pointer"
+                            className="bg-white/90 text-black px-2 py-1 rounded text-sm font-medium hover:bg-white transition-colors cursor-pointer"
                         >
                             고급주택가
                         </button>
@@ -432,14 +430,12 @@
                          <div className="absolute text-center pointer-events-auto" style={{ top: `${((119 * 1.327) - 20) * mapScale.y}px`, left: `${((286 * 1.325) - 30) * mapScale.x}px` }}>
                         <button 
                             onClick={() => handleMapAreaClick('물류창고')}
-                            className="text-black text-sm font-medium hover:text-gray-600 transition-colors cursor-pointer"
+                            className="bg-white/90 text-black px-2 py-1 rounded text-sm font-medium hover:bg-white transition-colors cursor-pointer"
                         >
                             물류창고
                         </button>
                         </div>
                     </div>
-                    </div>
-                </div>
                 </div>
             </div>
 
