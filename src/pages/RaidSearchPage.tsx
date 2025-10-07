@@ -156,10 +156,14 @@
         const handleCancel = () => {
             setSelectedArea(null);
             setSelectedAreaName('');
+            setShowItemAlert(false); // 아이템 알림창 닫기
+            setGainedItems([]); // 획득 아이템 초기화
         };
 
         // 나가기 확인
         const handleBackConfirm = () => {
+            setShowItemAlert(false); // 아이템 알림창 닫기
+            setGainedItems([]); // 획득 아이템 초기화
             navigate('/');
         };
 
@@ -559,7 +563,10 @@
                     </div>
                     
                     <button
-                        onClick={() => setShowItemAlert(false)}
+                        onClick={() => {
+                            setShowItemAlert(false);
+                            setGainedItems([]); // 획득 아이템 초기화
+                        }}
                         className="w-full py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors"
                     >
                         확인
