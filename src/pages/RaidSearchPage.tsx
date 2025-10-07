@@ -50,16 +50,14 @@
         // 유저 아이템 목록 로드
         const loadUserItems = async () => {
             try {
-            const token = localStorage.getItem('accessToken');
-            console.log('Token:', token); // 디버깅용
+            const userId = user?.id;
+            if (!userId) return;
             
-            const response = await fetch('https://b801-be.azurewebsites.net/api/raid-search/user-items', {
+            const response = await fetch(`https://b801-be.azurewebsites.net/api/raid-search/admin/user-items/${userId}`, {
                 headers: {
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
                 }
             });
-            
-            console.log('Response status:', response.status); // 디버깅용
             
             if (response.ok) {
                 const data = await response.json();
@@ -76,24 +74,11 @@
         // 남은 검색 횟수 로드
         const loadRemainingSearches = async () => {
             try {
-            const token = localStorage.getItem('accessToken');
-            console.log('Token for remaining:', token); // 디버깅용
+            const userId = user?.id;
+            if (!userId) return;
             
-            const response = await fetch('https://b801-be.azurewebsites.net/api/raid-search/remaining', {
-                headers: {
-                'Authorization': `Bearer ${token}`
-                }
-            });
-            
-            console.log('Remaining response status:', response.status); // 디버깅용
-            
-            if (response.ok) {
-                const data = await response.json();
-                setRemainingSearches(data.remainingSearches);
-            } else {
-                const errorData = await response.json();
-                console.error('Remaining API Error:', errorData);
-            }
+            // 임시로 25로 고정 (나중에 실제 API로 변경)
+            setRemainingSearches(25);
             } catch (error) {
             console.error('검색 횟수 로드 실패:', error);
             }
