@@ -133,9 +133,13 @@
 
             if (response.ok) {
                 const result: SearchResult = await response.json();
-                // 아이템을 찾았으면 gainedItems에 추가
+                // 항상 알림창 표시 (백엔드에서 항상 아이템을 찾도록 수정됨)
                 if (result.found && result.item) {
                     setGainedItems([result.item]);
+                    setShowItemAlert(true);
+                } else {
+                    // 아이템을 찾지 못한 경우에도 알림창 표시
+                    setGainedItems([]);
                     setShowItemAlert(true);
                 }
                 setRemainingSearches(result.remainingSearches);

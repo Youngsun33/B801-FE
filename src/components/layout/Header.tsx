@@ -25,14 +25,16 @@ const Header = ({ showMenu = true }: HeaderProps) => {
     }
   };
 
-  // 시간 제한 확인 함수 (2025-10-09부터 00시-11시 비활성화)
+  // 시간 제한 확인 함수 (2025-10-09부터 매일 00시-11시 비활성화) - 한국 시간 기준
   const isSearchDisabled = () => {
     const now = new Date();
     const restrictionStartDate = new Date('2025-10-09');
     
-    // 2025-10-09 이후이고 현재 시간이 00시-11시인지 확인
+    // 2025-10-09 이후이고 현재 시간이 00시-11시인지 확인 (한국 시간 기준)
     if (now >= restrictionStartDate) {
-      const currentHour = now.getHours();
+      // 한국 시간으로 변환
+      const koreaTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Seoul"}));
+      const currentHour = koreaTime.getHours();
       return currentHour >= 0 && currentHour < 12; // 00시-11시
     }
     
