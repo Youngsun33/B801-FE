@@ -54,7 +54,7 @@
             const userId = user?.id;
             if (!userId) return;
             
-            const response = await fetch(`https://b801-be.azurewebsites.net/api/raid-search/admin/user-items/${userId}`, {
+            const response = await fetch('https://b801-be.azurewebsites.net/api/raid-search/user-items', {
                 headers: {
                 'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
                 }
