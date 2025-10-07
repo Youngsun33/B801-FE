@@ -4,12 +4,12 @@ import { IMAGES } from '../constants/images';
 import Header from '@/components/layout/Header';
 import { useAuthStore } from '@/store/authStore';
 import { getActionPointStatus } from '@/api/story';
-import { getInventory, getUserAbilities, getUserCheckpoints } from '@/api/inventory';
-import type { InventoryItem, UserAbility, Checkpoint } from '@/api/inventory';
+import { getUserStoryAbilities, getUserStoryItems, getUserCheckpoints } from '@/api/inventory';
+import type { UserStoryAbility, UserStoryItem, Checkpoint } from '@/api/inventory';
 
 interface UserInventory {
-  abilities: UserAbility[];
-  items: InventoryItem[];
+  abilities: UserStoryAbility[];
+  items: UserStoryItem[];
   checkpoints: Checkpoint[];
   actionPoints: {
     current: number;
@@ -34,16 +34,16 @@ const MyPage = () => {
         setError('');
 
         // 병렬로 데이터 가져오기
-        const [actionPointsData, inventoryData, abilitiesData, checkpointsData] = await Promise.all([
+        const [actionPointsData, abilitiesData, itemsData, checkpointsData] = await Promise.all([
           getActionPointStatus(),
-          getInventory(),
-          getUserAbilities(),
+          getUserStoryAbilities(),
+          getUserStoryItems(),
           getUserCheckpoints()
         ]);
 
         const userInventory: UserInventory = {
-          abilities: abilitiesData.abilities,
-          items: inventoryData.inventory,
+          abilities: abilitiesData,
+          items: itemsData,
           checkpoints: checkpointsData.checkpoints,
           actionPoints: actionPointsData
         };
@@ -191,15 +191,13 @@ const MyPage = () => {
                   <h2 className="text-white text-lg font-medium mb-3">능력</h2>
                   <div className="space-y-3">
                     {inventory.abilities.map((ability) => (
-                      <div key={ability.userAbilityId} className="flex justify-between items-center">
+                      <div key={ability.userStoryAbilityId} className="flex justify-between items-center">
                         <div>
-                          <p className="text-white text-sm font-medium">{ability.ability.name}</p>
-                          <p className="text-gray-400 text-xs">{ability.ability.description}</p>
+                          <p className="text-white text-sm font-medium">{ability.storyAbility.name}</p>
+                          <p className="text-gray-400 text-xs">{ability.storyAbility.description}</p>
                         </div>
                         <div className="text-right">
-                          <p className={`text-sm ${ability.isActive ? 'text-green-400' : 'text-gray-500'}`}>
-                            {ability.isActive ? '활성' : '비활성'}
-                          </p>
+                          <p className="text-sm text-gray-300">x{ability.quantity}</p>
                         </div>
                       </div>
                     ))}
@@ -219,10 +217,10 @@ const MyPage = () => {
                   <h2 className="text-white text-lg font-medium mb-3">아이템</h2>
                   <div className="space-y-3">
                     {inventory.items.map((item) => (
-                      <div key={item.inventoryId} className="flex justify-between items-center">
+                      <div key={item.userStoryItemId} className="flex justify-between items-center">
                         <div>
-                          <p className="text-white text-sm font-medium">{item.item.name}</p>
-                          <p className="text-gray-400 text-xs">{item.item.description}</p>
+                          <p className="text-white text-sm font-medium">{item.storyItem.name}</p>
+                          <p className="text-gray-400 text-xs">{item.storyItem.description}</p>
                         </div>
                         <div className="text-right">
                           <p className="text-gray-300 text-sm">x{item.quantity}</p>

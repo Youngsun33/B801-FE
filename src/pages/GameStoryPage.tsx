@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { getStoryNode, chooseStoryOption, enterStoryDay } from '../api/story';
 import { StoryNode } from '../api/story';
-import { getInventory, getUserStoryAbilities, getUserStoryItems, getUserCheckpoints, loadCheckpoint, InventoryItem, UserStoryAbility, UserStoryItem, UserCheckpoint } from '../api/inventory';
+import { getUserStoryAbilities, getUserStoryItems, getUserCheckpoints, loadCheckpoint, UserStoryAbility, UserStoryItem, UserCheckpoint } from '../api/inventory';
 
 // 이미지 URL 상수
 import { IMAGES } from '../constants/images';
@@ -181,18 +181,7 @@ const GameStoryPage = () => {
             console.error('Failed to refresh story abilities:', err);
           }
         }
-        if (result.delta.checkpoint) {
-          // 체크포인트 도착 알림
-          showToast(result.delta.checkpoint.message);
-          
-          // 체크포인트 목록 새로고침
-          try {
-            const checkpointsData = await getUserCheckpoints();
-            setCheckpoints(checkpointsData);
-          } catch (err) {
-            console.error('Failed to refresh checkpoints:', err);
-          }
-        }
+        // 체크포인트 관련 응답은 현재 타입에 없음. 이후 백엔드 스펙 확정 시 처리
       }
 
       // 다음 노드 로드
@@ -245,7 +234,7 @@ const GameStoryPage = () => {
         ]);
         setAbilities(abilData);
         setStoryItems(itemsData);
-        setCheckpoints(checkpointsData);
+        setCheckpoints(checkpointsData.checkpoints);
       } catch (err) {
         console.error('Failed to load inventory:', err);
       }
