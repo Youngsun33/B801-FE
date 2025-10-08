@@ -20,7 +20,7 @@ interface UserInventory {
 
 const MyPage = () => {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const { user, updateUser } = useAuthStore();
   const [inventory, setInventory] = useState<UserInventory | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -32,6 +32,19 @@ const MyPage = () => {
       try {
         setIsLoading(true);
         setError('');
+
+        // 최신 유저 정보 가져오기
+        const userProfileResponse = await fetch('https://b801-be.azurewebsites.net/api/users/me', {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+          }
+        });
+        
+        if (userProfileResponse.ok) {
+          const userProfileData = await userProfileResponse.json();
+          // Zustand store 업데이트
+          updateUser(userProfileData.user);
+        }
 
         // 병렬로 데이터 가져오기
         const [actionPointsData, abilitiesData, itemsData, checkpointsData] = await Promise.all([
