@@ -41,7 +41,7 @@ const Header = ({ showMenu = true }: HeaderProps) => {
     return false;
   };
 
-  // 레이드 조사 시간 제한 확인 함수 (19:00-21:00만 활성화) - 한국 시간 기준
+  // 레이드 조사 시간 제한 확인 함수 (21:00-21:40만 활성화) - 한국 시간 기준
   const isRaidSearchDisabled = () => {
     // 한국 시간으로 변환
     const now = new Date();
@@ -50,9 +50,9 @@ const Header = ({ showMenu = true }: HeaderProps) => {
     const currentMinute = koreaTime.getMinutes();
     const currentTimeInMinutes = currentHour * 60 + currentMinute;
     
-    // 19:00 = 1140분, 21:00 = 1260분
-    const raidStartTime = 19 * 60; // 19:00
-    const raidEndTime = 21 * 60;   // 21:00
+    // 21:00 = 1260분, 21:40 = 1300분
+    const raidStartTime = 21 * 60; // 21:00
+    const raidEndTime = 21 * 60 + 40; // 21:40
     
     return currentTimeInMinutes < raidStartTime || currentTimeInMinutes >= raidEndTime;
   };
@@ -69,7 +69,7 @@ const Header = ({ showMenu = true }: HeaderProps) => {
   const handleRaidSearchClick = () => {
     if (isRaidSearchDisabled()) {
       // 레이드 조사 시간 제한 알림 모달 표시
-      alert('해당 시간이 아닙니다.\n레이드조사 19:00~21:00');
+      alert('해당 시간이 아닙니다.\n레이드조사 21:00~21:40');
     } else {
       navigate('/raidsearch');
       setIsMenuOpen(false);
@@ -175,7 +175,7 @@ const Header = ({ showMenu = true }: HeaderProps) => {
                     >
                       {item.label}
                       {isSearchDisabledTime && <span className="text-xs ml-2 text-gray-400">(시간 제한)</span>}
-                      {isRaidSearchDisabledTime && <span className="text-xs ml-2 text-gray-400">(19:00~21:00)</span>}
+                      {isRaidSearchDisabledTime && <span className="text-xs ml-2 text-gray-400">(21:00~21:40)</span>}
                     </button>
                   );
                 })}
