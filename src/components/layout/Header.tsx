@@ -25,25 +25,20 @@ const Header = ({ showMenu = true }: HeaderProps) => {
     }
   };
 
-  // 시간 제한 확인 함수 (2025-10-09부터 매일 00시-11시 비활성화) - 한국 시간 기준
+  // 시간 제한 확인 함수 (매일 00시-11시 비활성화) - 한국 시간 기준
   const isSearchDisabled = () => {
+    // 한국 시간으로 변환
     const now = new Date();
-    const restrictionStartDate = new Date('2025-10-09');
+    const koreaTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Seoul"}));
+    const currentHour = koreaTime.getHours();
     
-    // 2025-10-09 이후이고 현재 시간이 00시-11시인지 확인 (한국 시간 기준)
-    if (now >= restrictionStartDate) {
-      // 한국 시간으로 변환
-      const koreaTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Seoul"}));
-      const currentHour = koreaTime.getHours();
-      return currentHour >= 0 && currentHour < 12; // 00시-11시
-    }
-    
-    return false;
+    // 매일 00시-11시는 비활성화
+    return currentHour >= 0 && currentHour < 12; // 00시-11시
   };
 
   // 레이드 조사 시간 제한 확인 함수 (21:00-21:40만 활성화) - 한국 시간 기준
   const isRaidSearchDisabled = () => {
-    // 한국 시간으로 변환
+    // 한국 시간으로 변환ㅎㅎ
     const now = new Date();
     const koreaTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Seoul"}));
     const currentHour = koreaTime.getHours();
