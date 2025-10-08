@@ -47,7 +47,12 @@ apiClient.interceptors.response.use(
         }
 
         // Refresh Token으로 새로운 Access Token 발급
-        const response = await axios.post('/api/auth/refresh', {}, {
+        // baseURL을 적용하기 위해 새로운 axios 인스턴스 생성
+        const baseURL = process.env.NODE_ENV === 'production'
+          ? 'https://b801-be.azurewebsites.net/api'
+          : 'http://localhost:8080/api';
+        
+        const response = await axios.post(`${baseURL}/auth/refresh`, {}, {
           headers: {
             Authorization: `Bearer ${refreshToken}`,
           },
@@ -61,6 +66,7 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest);
       } catch (refreshError) {
         // Refresh Token도 만료된 경우
+        console.error('Token refresh failed:', refreshError);
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         window.location.href = '/login';
