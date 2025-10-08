@@ -10,9 +10,8 @@ interface HeaderProps {
 const Header = ({ showMenu = true }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showTimeModal, setShowTimeModal] = useState(false);
-  const [showRechargeModal, setShowRechargeModal] = useState(false);
   const navigate = useNavigate();
-  const { isAuthenticated, user, clearAuth, updateUser } = useAuthStore();
+  const { isAuthenticated, user, clearAuth } = useAuthStore();
 
   const handleLogout = async () => {
     try {
@@ -73,41 +72,8 @@ const Header = ({ showMenu = true }: HeaderProps) => {
   };
 
   const handleRechargeClick = () => {
-    setShowRechargeModal(true);
+    navigate('/recharge');
     setIsMenuOpen(false);
-  };
-
-  const handleRechargeConfirm = async () => {
-    try {
-      // 골드 체크
-      if (!user || user.gold < 2) {
-        alert('골드가 부족합니다.\n필요한 골드: 2개');
-        setShowRechargeModal(false);
-        return;
-      }
-
-      const response = await fetch('https://b801-be.azurewebsites.net/api/story/recharge', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        // 유저 정보 업데이트 (골드 차감)
-        updateUser({ gold: data.currentGold });
-        alert(`조사 기회가 충전되었습니다!\n남은 조사 기회: ${data.remaining}회`);
-      } else {
-        const error = await response.json();
-        alert(error.error || '충전에 실패했습니다.');
-      }
-    } catch (error) {
-      console.error('충전 오류:', error);
-      alert('충전 중 오류가 발생했습니다.');
-    } finally {
-      setShowRechargeModal(false);
-    }
   };
 
   const commonMenuItems = [
@@ -290,73 +256,6 @@ const Header = ({ showMenu = true }: HeaderProps) => {
         </>
       )}
 
-      {/* 조사 기회 충전 모달 */}
-      {showRechargeModal && (
-        <>
-          {/* 모달 오버레이 */}
-          <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-60 transition-opacity"
-            onClick={() => setShowRechargeModal(false)}
-          />
-          
-          {/* 모달 콘텐츠 */}
-          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-70 w-full px-4" style={{ maxWidth: '340px' }}>
-            <div 
-              className="backdrop-blur-sm rounded-3xl shadow-2xl overflow-hidden"
-              style={{
-                background: 'rgba(40, 40, 40, 0.85)',
-                border: '1.5px solid rgba(255, 255, 255, 0.2)',
-              }}
-            >
-              <div className="px-6 py-8">
-                {/* 제목 */}
-                <h2 className="text-white text-center text-base font-medium mb-8">
-                  조사 기회를 충전하시겠습니까?
-                </h2>
-                
-                {/* 가격 정보 */}
-                <div className="text-center mb-6">
-                  <p className="text-gray-300 text-sm mb-2">
-                    가격: <span className="font-semibold text-yellow-400">2 골드</span>
-                  </p>
-                  <p className="text-gray-400 text-xs">
-                    현재 골드: {user?.gold ?? 0}개
-                  </p>
-                </div>
-
-                {/* 안내 문구 */}
-                <p className="text-gray-300 text-center text-sm leading-relaxed mb-8">
-                  조사 기회 +1회
-                </p>
-
-                {/* 버튼 그룹 */}
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setShowRechargeModal(false)}
-                    className="flex-1 py-3.5 rounded-full font-medium text-white transition-all duration-200 active:scale-95"
-                    style={{
-                      background: 'transparent',
-                      border: '1.5px solid rgba(255, 255, 255, 0.6)',
-                    }}
-                  >
-                    취소
-                  </button>
-                  <button
-                    onClick={handleRechargeConfirm}
-                    className="flex-1 py-3.5 rounded-full font-medium text-white transition-all duration-200 active:scale-95"
-                    style={{
-                      background: 'transparent',
-                      border: '1.5px solid rgba(255, 255, 255, 0.6)',
-                    }}
-                  >
-                    구매
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
     </>
   );
 };
