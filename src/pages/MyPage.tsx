@@ -39,7 +39,10 @@ const MyPage = () => {
 
   useEffect(() => {
     const fetchInventory = async () => {
-      if (!user) return;
+      if (!user) {
+        navigate('/login');
+        return;
+      }
 
       try {
         setIsLoading(true);
@@ -89,8 +92,11 @@ const MyPage = () => {
       }
     };
 
-    fetchInventory();
-  }, [user]);
+    // user.id만 체크하여 user 객체 변경으로 인한 무한 루프 방지
+    if (user?.id) {
+      fetchInventory();
+    }
+  }, [user?.id]); // user 전체가 아닌 user.id만 의존성으로 설정
 
   const handleBack = () => {
     navigate('/');
