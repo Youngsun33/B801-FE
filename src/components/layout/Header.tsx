@@ -32,8 +32,8 @@ const Header = ({ showMenu = true }: HeaderProps) => {
     const koreaTime = new Date(now.toLocaleString("en-US", {timeZone: "Asia/Seoul"}));
     const currentHour = koreaTime.getHours();
     
-    // 매일 00시-11시는 비활성화
-    return currentHour >= 0 && currentHour < 12; // 00시-11시
+    // 매일 00시-10시 59분까지 비활성화 (11시부터 활성화)
+    return currentHour >= 0 && currentHour < 11; // 00시-10시
   };
 
   // 레이드 조사 시간 제한 확인 함수 (21:00-21:40만 활성화) - 한국 시간 기준
