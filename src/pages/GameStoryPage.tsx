@@ -181,7 +181,30 @@ const GameStoryPage = () => {
             console.error('Failed to refresh story abilities:', err);
           }
         }
-        // 체크포인트 관련 응답은 현재 타입에 없음. 이후 백엔드 스펙 확정 시 처리
+        if (result.delta.checkpoint) {
+          // 체크포인트 도달 알림 표시
+          showToast(`💾 ${result.delta.checkpoint.message}`);
+          
+          // 체크포인트 인벤토리 새로고침
+          try {
+            const checkpointData = await getUserCheckpoints();
+            setCheckpoints(checkpointData.checkpoints);
+          } catch (err) {
+            console.error('Failed to refresh checkpoints:', err);
+          }
+        }
+        if (result.delta.ending) {
+          // 엔딩 도달 알림 표시
+          showToast(`🏆 ${result.delta.ending.message}`);
+          
+          // 체크포인트 인벤토리 새로고침 (엔딩에서도 체크포인트 저장됨)
+          try {
+            const checkpointData = await getUserCheckpoints();
+            setCheckpoints(checkpointData.checkpoints);
+          } catch (err) {
+            console.error('Failed to refresh checkpoints:', err);
+          }
+        }
       }
 
       // 다음 노드 로드
@@ -448,7 +471,7 @@ const GameStoryPage = () => {
           <div className="absolute inset-0 bg-black/70 flex items-center justify-center z-50 px-6">
             <div className="bg-white rounded-2xl p-6 w-full max-w-sm">
               <p className="text-gray-800 text-center mb-2">나가시겠나요? 남은 기회: {remainingChances}회</p>
-              <p className="text-gray-600 text-sm text-center mb-6">현재까지 진행한 이야기는 자동으로 저장됩니다.</p>
+              <p className="text-gray-600 text-sm text-center mb-6">조사 재시작 시 처음부터 시작됩니다.</p>
               <div className="flex gap-3">
                 <button
                   onClick={handleCancelBack}

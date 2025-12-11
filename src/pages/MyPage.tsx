@@ -7,6 +7,17 @@ import { getActionPointStatus } from '@/api/story';
 import { getUserStoryAbilities, getUserStoryItems, getUserCheckpoints } from '@/api/inventory';
 import type { UserStoryAbility, UserStoryItem, Checkpoint } from '@/api/inventory';
 
+interface UserProfile {
+  id: number;
+  username: string;
+  hp: number;
+  energy: number;
+  gold: number;
+  attack_power: number;
+  current_day: number;
+  is_alive: boolean;
+}
+
 interface UserInventory {
   abilities: UserStoryAbility[];
   items: UserStoryItem[];
@@ -20,18 +31,42 @@ interface UserInventory {
 
 const MyPage = () => {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const { user, updateUser } = useAuthStore();
   const [inventory, setInventory] = useState<UserInventory | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchInventory = async () => {
-      if (!user) return;
+      if (!user) {
+        navigate('/login');
+        return;
+      }
 
       try {
         setIsLoading(true);
         setError('');
+
+        // 최신 유저 정보 가져오기
+        try {
+          const userProfileResponse = await fetch('https://b801-be.azurewebsites.net/api/users/me', {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+            }
+          });
+          
+          if (userProfileResponse.ok) {
+            const userProfileData = await userProfileResponse.json();
+            // 최신 프로필 상태에 저장
+            setUserProfile(userProfileData.user);
+            // Zustand store도 업데이트
+            updateUser(userProfileData.user);
+          }
+        } catch (profileError) {
+          console.error('Failed to fetch user profile:', profileError);
+          // 프로필 가져오기 실패해도 계속 진행
+        }
 
         // 병렬로 데이터 가져오기
         const [actionPointsData, abilitiesData, itemsData, checkpointsData] = await Promise.all([
@@ -57,8 +92,11 @@ const MyPage = () => {
       }
     };
 
-    fetchInventory();
-  }, [user]);
+    // user.id만 체크하여 user 객체 변경으로 인한 무한 루프 방지
+    if (user?.id) {
+      fetchInventory();
+    }
+  }, [user?.id]); // user 전체가 아닌 user.id만 의존성으로 설정
 
   const handleBack = () => {
     navigate('/');
@@ -128,27 +166,27 @@ const MyPage = () => {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between text-gray-300">
                       <span>이름:</span>
-                      <span className="text-white">{user.username}</span>
+                      <span className="text-white">{userProfile?.username || user.username}</span>
                     </div>
                     <div className="flex justify-between text-gray-300">
                       <span>HP:</span>
-                      <span className="text-white">{user.hp}</span>
+                      <span className="text-white">{userProfile?.hp || user.hp}</span>
                     </div>
                     <div className="flex justify-between text-gray-300">
                       <span>에너지:</span>
-                      <span className="text-white">{user.energy}</span>
+                      <span className="text-white">{userProfile?.energy || user.energy}</span>
                     </div>
                     <div className="flex justify-between text-gray-300">
                       <span>골드:</span>
-                      <span className="text-white">{user.gold}</span>
+                      <span className="text-white">{userProfile?.gold || user.gold}</span>
                     </div>
                     <div className="flex justify-between text-gray-300">
                       <span>공격력:</span>
-                      <span className="text-white">{user.attack_power}</span>
+                      <span className="text-white">{userProfile?.attack_power || user.attack_power}</span>
                     </div>
                     <div className="flex justify-between text-gray-300">
                       <span>현재 일차:</span>
-                      <span className="text-white">{user.current_day}일차</span>
+                      <span className="text-white">{userProfile?.current_day || user.current_day}일차</span>
                     </div>
                   </div>
                 </div>

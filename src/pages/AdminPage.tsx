@@ -14,6 +14,7 @@ const AdminPage: React.FC = () => {
     { path: '/admin', label: '대시보드', icon: '📊' },
     { path: '/admin/story-editor', label: '스토리 편집기', icon: '📝' },
     { path: '/admin/users', label: '사용자 관리', icon: '👥' },
+    { path: '/admin/raid-management', label: '레이드 조사 관리', icon: '🗺️' },
     { path: '/admin/analytics', label: '분석', icon: '📈' },
   ];
 
@@ -56,6 +57,7 @@ const AdminPage: React.FC = () => {
             <Route path="/" element={<AdminDashboard />} />
             <Route path="/story-editor" element={<StoryEditor />} />
             <Route path="/users" element={<UserManagement />} />
+            <Route path="/raid-management" element={<RaidManagement />} />
             <Route path="/analytics" element={<Analytics />} />
           </Routes>
         </div>
@@ -1112,6 +1114,155 @@ const UserManagement: React.FC = () => {
           </div>
         </div>
       )}
+    </div>
+  );
+};
+
+// 레이드 조사 관리 컴포넌트
+const RaidManagement: React.FC = () => {
+  const [users, setUsers] = useState<any[]>([]);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [userItems, setUserItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [itemsLoading, setItemsLoading] = useState(false);
+
+  // 유저 목록 로드
+  const loadUsers = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch('https://b801-be.azurewebsites.net/api/admin/users', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setUsers(data.users || []);
+      } else {
+        console.error('유저 목록 로드 실패:', response.status);
+      }
+    } catch (error) {
+      console.error('유저 목록 로드 실패:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 유저 아이템 로드
+  const loadUserItems = async (userId: number) => {
+    setItemsLoading(true);
+    try {
+      const response = await fetch(`https://b801-be.azurewebsites.net/api/raid-search/admin/user-items/${userId}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setUserItems(Array.isArray(data) ? data : []);
+      } else {
+        console.error('유저 아이템 로드 실패:', response.status);
+        setUserItems([]);
+      }
+    } catch (error) {
+      console.error('유저 아이템 로드 실패:', error);
+      setUserItems([]);
+    } finally {
+      setItemsLoading(false);
+    }
+  };
+
+
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  useEffect(() => {
+    if (selectedUser) {
+      loadUserItems(selectedUser.id);
+    }
+  }, [selectedUser]);
+
+  return (
+    <div className="raid-management">
+      <div className="page-header">
+        <h2>🗺️ 레이드 조사 관리</h2>
+        <p>유저들이 가지고 있는 레이드 아이템을 확인할 수 있습니다.</p>
+      </div>
+      
+      <div className="raid-management-content">
+        {/* 유저 목록 */}
+        <div className="user-list-section">
+          <div className="section-header">
+            <h3>👥 유저 목록</h3>
+            <button onClick={loadUsers} className="refresh-btn">새로고침</button>
+          </div>
+          
+          {loading ? (
+            <div className="loading">유저 목록을 불러오는 중...</div>
+          ) : (
+            <div className="user-list">
+              {users.length === 0 ? (
+                <div className="no-data">유저가 없습니다.</div>
+              ) : (
+                users.map((user) => (
+                  <div
+                    key={user.id}
+                    className={`user-item ${selectedUser?.id === user.id ? 'selected' : ''}`}
+                    onClick={() => setSelectedUser(user)}
+                  >
+                    <div className="user-info">
+                      <div className="user-name">
+                        <strong>{user.username}</strong>
+                        {user.role === 'admin' && <span className="admin-badge">관리자</span>}
+                      </div>
+                      <div className="user-details">
+                        <span className="user-id">ID: {user.id}</span>
+                        <span className={`user-status ${user.is_alive ? 'active' : 'inactive'}`}>
+                          {user.is_alive ? '활성' : '비활성'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="user-arrow">→</div>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* 선택된 유저의 아이템 목록 */}
+        {selectedUser && (
+          <div className="user-items-section">
+            <div className="section-header">
+              <h3>🎒 {selectedUser.username}의 레이드 아이템</h3>
+            </div>
+            
+            {itemsLoading ? (
+              <div className="loading">아이템 목록을 불러오는 중...</div>
+            ) : (
+              <div className="items-list">
+                {userItems.length === 0 ? (
+                  <div className="no-data">아이템이 없습니다.</div>
+                ) : (
+                  userItems.map((item, index) => (
+                    <div key={index} className="item-row">
+                      <div className="item-info">
+                        <span className="item-name">{item.item_name}</span>
+                        <span className="item-quantity">수량: {item.quantity}</span>
+                        <span className="item-date">
+                          {new Date(item.obtained_at).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
     </div>
   );
 };
