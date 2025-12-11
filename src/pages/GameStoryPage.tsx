@@ -420,16 +420,22 @@ const GameStoryPage = () => {
                     console.log('targetNodeId 타입:', typeof choice.targetNodeId);
                     console.log('targetNodeId 값:', choice.targetNodeId);
                     
-                    // 선택지의 실제 ID 사용
-                    const choiceId = choice.id;
-                    console.log('최종 choiceId:', choiceId);
+                    // 날짜 해금 안내
+                    if (choice.lockedUntil) {
+                      showToast(`${choice.lockedUntil} 해금됩니다.`);
+                      return;
+                    }
+                    const choiceId = choice.id; // 실제 선택지 ID 사용
                     handleChoice(choiceId);
                   }}
                   disabled={isLoading}
                   className="w-full py-3 px-4 text-left rounded-lg bg-white border border-gray-300 hover:bg-gray-50 active:bg-gray-100 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <p className="text-gray-800 text-sm">
+                  <p className={`text-sm ${choice.lockedUntil ? 'text-gray-400' : 'text-gray-800'}`}>
                     - {choice.label}
+                    {choice.lockedUntil && (
+                      <span className="ml-2 text-xs text-gray-500">({choice.lockedUntil} 해금)</span>
+                    )}
                   </p>
                 </button>
               ))}

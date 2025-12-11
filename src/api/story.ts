@@ -27,6 +27,7 @@ export interface StoryNode {
     label: string;
     targetNodeId?: number;
     requiresItemId?: number;
+    lockedUntil?: string; // 예: "10월 9일"
   }>;
   rewards?: {
     items?: Array<{ itemId: number; quantity: number }>;
